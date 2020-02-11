@@ -71,23 +71,18 @@ public class Testing {
     Solution solution = new com.javarush.task.task34.task3404.Solution();
     //запоминаем настоящий PrintStream в специальную переменную
     PrintStream consoleStream = System.out;
-
     //Создаем динамический массив
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     //создаем адаптер к классу PrintStream
     PrintStream stream = new PrintStream(outputStream);
     //Устанавливаем его как текущий System.out
     System.setOut(stream);
-
     //Вызываем функцию, которая ничего не знает о наших манипуляциях
     solution.recurse(expression, countOperation);
-
     //Преобразовываем записанные в наш ByteArray данные в строку
     String result = outputStream.toString();
-
     //Возвращаем все как было
     System.setOut(consoleStream);
-
     //выводим ее
     System.out.println(result);
     return result;
