@@ -6,7 +6,7 @@ package com.javarush.task.task34.task3404;
 public class Solution {
     public static void main(String[] args) {
         Solution solution = new Solution();
-        solution.recurse("-2+(-2+(-2)-2*(2+2))", 0); //expected output 0.5 6
+        solution.recurse("-2-(-2-1-(-2)-(-2)-(-2-2-(-2)-2)-2-2)", 0); //expected output 0.5 6
     }
 
     public void recurse(final String expression, int countOperation) {
