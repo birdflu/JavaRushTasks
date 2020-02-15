@@ -5,7 +5,6 @@ package com.javarush.task.task18.task1817;
 */
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
