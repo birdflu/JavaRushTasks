@@ -68,7 +68,6 @@ public class Solution {
 
             if (first != null ? !first.equals(pair.first) : pair.first != null) return false;
             return second != null ? second.equals(pair.second) : pair.second == null;
-
         }
 
         @Override
