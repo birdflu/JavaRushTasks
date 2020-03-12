@@ -4,6 +4,7 @@ import java.util.Comparator;
 
 /*
 Убежденному убеждать других не трудно
+
 */
 public class Solution {
     public static class CustomizedComparator<T> implements Comparator<T>{
