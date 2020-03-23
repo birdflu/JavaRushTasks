@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.util.Arrays;
 
 /* 
 Целостность информации
