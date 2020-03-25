@@ -31,6 +31,17 @@ public class Server {
         }
       }
     }
+  
+    private void notifyUsers(Connection connection, String userName) throws IOException {
+      for (Map.Entry<String,Connection> entry: connectionMap.entrySet()
+      ) {
+        String name = entry.getKey();
+        if (name != userName)
+          connection.send(new Message(MessageType.USER_ADDED, name));
+      }
+    }
+    
+    
   }
   
   public static void sendBroadcastMessage(Message message) {
