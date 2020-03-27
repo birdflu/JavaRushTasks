@@ -12,7 +12,25 @@ public class Client {
   private volatile boolean clientConnected = false;
   
   public class SocketThread extends Thread {
+    
+    protected void processIncomingMessage(String message) {
+      ConsoleHelper.writeMessage(message);
+    }
   
+    protected void informAboutAddingNewUser(String userName) {
+      ConsoleHelper.writeMessage("User " + userName + " connected.");
+    }
+  
+    protected void informAboutDeletingNewUser(String userName) {
+      ConsoleHelper.writeMessage("User " + userName + " leave.");
+    }
+  
+    protected void notifyConnectionStatusChanged(boolean clientConnected) {
+      Client.this.clientConnected = clientConnected;
+      synchronized (Client.this){
+        Client.this.notify();
+      }
+    }
   }
   
   protected String getServerAddress() {
