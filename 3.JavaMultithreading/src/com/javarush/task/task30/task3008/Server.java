@@ -3,6 +3,7 @@ package com.javarush.task.task30.task3008;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,7 +42,46 @@ public class Server {
       }
     }
     
-    
+    private void serverMainLoop(Connection connection, String userName) throws IOException, ClassNotFoundException {
+      while (true){
+        Message response = connection.receive();
+        String text = response.getData();
+        if (response.getType() == MessageType.TEXT) {
+          String newText = userName + ": " + text;
+          sendBroadcastMessage(new Message(MessageType.TEXT, newText));
+        } else {
+          ConsoleHelper.writeMessage("The message is not text");
+        }
+      }
+    }
+  
+    @Override
+    public void run() {
+      SocketAddress remoteSocketAddress = socket.getRemoteSocketAddress();
+      System.out.println("Remote connection with " + remoteSocketAddress.toString() + " done");
+      String userName = null;
+      try {
+        Connection connection = new Connection(socket);
+        userName = serverHandshake(connection);
+        sendBroadcastMessage(new Message(MessageType.USER_ADDED, userName));
+        notifyUsers(connection,userName);
+        serverMainLoop(connection, userName);
+      } catch (IOException | ClassNotFoundException e) {
+        e.printStackTrace();
+      } finally {
+        try {
+          socket.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+      if (userName != null) {
+        final String userNameFinal = userName;
+        connectionMap.entrySet().removeIf(s -> s.getKey().equals(userNameFinal));
+        sendBroadcastMessage(new Message(MessageType.USER_REMOVED, userName));
+      }
+      System.out.println("Remote connection with " + remoteSocketAddress.toString() + " close");
+    }
   }
   
   public static void sendBroadcastMessage(Message message) {
