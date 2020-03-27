@@ -16,11 +16,6 @@ public class Client {
   }
   
   protected String getServerAddress() {
-/*    String serverAddress = null;
-    serverAddress = ConsoleHelper.readString();
-    if (!serverAddress.matches("/^(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[0-9]{2}|[0-9])(\\.(25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[0-9]{2}|[0-9])){3}$/")
-            && !"localhost".equals(serverAddress))
-      throw new IllegalArgumentException();*/
     return ConsoleHelper.readString();
   }
   
@@ -48,5 +43,38 @@ public class Client {
       clientConnected = false;
     }
   }
- 
+  
+  public void run() {
+    SocketThread socketThread = getSocketThread();
+    socketThread.setDaemon(true);
+    socketThread.start();
+    synchronized (this) {
+      try {
+        wait();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+        return;
+      }}
+      if (clientConnected) {
+        System.out.println("Соединение установлено.");
+        System.out.println("Для выхода наберите команду 'exit'.");
+        
+      } else System.out.println("Произошла ошибка во время работы клиента.");
+    
+      
+    while (clientConnected) {
+      String message = ConsoleHelper.readString();
+      if ("exit".equals(message)) break;
+      if (shouldSendTextFromConsole()) {
+        sendTextMessage(message);
+//        System.out.println(message + "!");
+      }
+    }
+  }
+  
+  public static void main(String[] args) {
+    Client client = new Client();
+    client.run();
+  }
+  
 }
