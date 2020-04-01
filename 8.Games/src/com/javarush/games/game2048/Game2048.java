@@ -6,7 +6,7 @@ import com.javarush.engine.cell.Key;
 
 public class Game2048 extends Game {
   private static final int SIDE = 4;
-  private  int[][] gameField = new  int[SIDE][SIDE];
+  private  int[][] gameField;
   private boolean isGameStopped = false;
   
   @Override
@@ -18,8 +18,9 @@ public class Game2048 extends Game {
   }
   
   private void createGame() {
-  createNewNumber();
-  createNewNumber();
+    gameField = new int[SIDE][SIDE];
+    createNewNumber();
+    createNewNumber();
   }
 
   
@@ -84,22 +85,35 @@ public class Game2048 extends Game {
   
   @Override
   public void onKeyPress(Key key) {
-    super.onKeyPress(key);
-  
-    if (key == Key.LEFT) {
-      moveLeft();
+    if(key == Key.SPACE){
+      isGameStopped = false;
+      createGame();
       drawScene();
-    } else if (key == Key.RIGHT) {
-      moveRight();
-      drawScene();
-    } else if (key == Key.UP) {
-      moveUp();
-      drawScene();
-    } else if (key == Key.DOWN) {
-      moveDown();
-      drawScene();
+      return;
     }
     
+    if(!isGameStopped){
+      if(!canUserMove()){
+        gameOver();
+        return;
+      }
+      if(key == Key.LEFT){
+        moveLeft();
+        drawScene();
+      }
+      else if(key == Key.RIGHT){
+        moveRight();
+        drawScene();
+      }
+      else if(key == Key.UP){
+        moveUp();
+        drawScene();
+      }
+      else if(key == Key.DOWN){
+        moveDown();
+        drawScene();
+      }
+    }
   }
   
   private void moveDown() {
@@ -158,10 +172,16 @@ public class Game2048 extends Game {
     showMessageDialog(Color.DARKORANGE, "You win!", Color.BLACK, 16);
   }
   
+  private void gameOver() {
+    isGameStopped = true;
+    showMessageDialog(Color.DARKORANGE, "You loose!", Color.BLACK, 16);
+  }
+  
   private boolean canUserMove() {
     for (int i = 0; i < SIDE; i++)
       for (int j = 0; j < SIDE; j++)
-        if (gameField[i][j] == 0 || isNeighborTwin(i,j)) return true;
+        if (gameField[i][j] == 0 || isNeighborTwin(i,j))
+          return true;
     return false;
   }
   
@@ -175,4 +195,5 @@ public class Game2048 extends Game {
       return true;
     return false;
   }
+  
 }
