@@ -7,6 +7,7 @@ import com.javarush.engine.cell.Key;
 public class Game2048 extends Game {
   private static final int SIDE = 4;
   private  int[][] gameField = new  int[SIDE][SIDE];
+  private boolean isGameStopped = false;
   
   @Override
   public void initialize() {
@@ -31,6 +32,7 @@ public class Game2048 extends Game {
   }
   
   private void createNewNumber() {
+    if (getMaxTileValue() == 2048) win();
     while (true) {
       int y = getRandomNumber(SIDE);
       int x = getRandomNumber(SIDE);
@@ -39,7 +41,8 @@ public class Game2048 extends Game {
         break;
       }
   }
-  }
+    
+      }
   
   private Color getColorByValue(int value) {
     Color[] colors = {Color.GREEN, Color.BLUE, Color.AQUA, Color.BLUEVIOLET,
@@ -96,15 +99,31 @@ public class Game2048 extends Game {
       moveDown();
       drawScene();
     }
+    
   }
   
   private void moveDown() {
+    rotateClockwise();
+    moveLeft();
+    rotateClockwise();
+    rotateClockwise();
+    rotateClockwise();
   }
   
   private void moveUp() {
+    rotateClockwise();
+    rotateClockwise();
+    rotateClockwise();
+    moveLeft();
+    rotateClockwise();
   }
   
   private void moveRight() {
+    rotateClockwise();
+    rotateClockwise();
+    moveLeft();
+    rotateClockwise();
+    rotateClockwise();
   }
   
   private void moveLeft() {
@@ -114,7 +133,6 @@ public class Game2048 extends Game {
         counter++;
     }
     if (counter > 0) createNewNumber();
-    
     }
     
     private void rotateClockwise() {
@@ -126,6 +144,35 @@ public class Game2048 extends Game {
       }
       gameField = gameFieldRotate;
     }
+    
+    private int getMaxTileValue() {
+      int maxTileValue = 0;
+      for (int i = 0; i < SIDE; i++)
+        for (int j = 0; j < SIDE; j++)
+          if (gameField[i][j] > maxTileValue) maxTileValue = gameField[i][j];
+      return maxTileValue;
+  }
   
-
+  private void win() {
+    isGameStopped = true;
+    showMessageDialog(Color.DARKORANGE, "You win!", Color.BLACK, 16);
+  }
+  
+  private boolean canUserMove() {
+    for (int i = 0; i < SIDE; i++)
+      for (int j = 0; j < SIDE; j++)
+        if (gameField[i][j] == 0 || isNeighborTwin(i,j)) return true;
+    return false;
+  }
+  
+  private boolean isNeighborTwin (int y, int x) {
+    int field = gameField[y][x];
+    int right = (x == SIDE-1)? -1: gameField[y][x+1];
+    int left = (x == 0)? -1: gameField[y][x-1];
+    int down = (y == SIDE-1)? -1: gameField[y+1][x];
+    int up = (y == 0)? -1: gameField[y-1][x];
+    if (field == right || field == left || field == down || field == up)
+      return true;
+    return false;
+  }
 }
