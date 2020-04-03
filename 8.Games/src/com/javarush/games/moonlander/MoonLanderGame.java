@@ -29,7 +29,6 @@ public class MoonLanderGame extends Game {
     }
     landscape.draw(this);
     rocket.draw(this);
-    
   }
   
   private void createGameObjects() {

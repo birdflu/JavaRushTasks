@@ -11,6 +11,5 @@ public class Rocket extends GameObject {
   public void move() {
     speedY += boost;
     y += speedY;
-    
   }
 }
