@@ -1,5 +1,7 @@
 package com.javarush.games.moonlander;
 
+import com.javarush.engine.cell.*;
+
 import java.util.List;
 
 public class RocketFire extends GameObject {
@@ -12,5 +14,20 @@ public class RocketFire extends GameObject {
     frames = frameList;
     frameIndex = 0;
     isVisible = false;
+  }
+  
+  private void nextFrame() {
+    frameIndex++;
+    if (frameIndex >= frames.size()) {
+      frameIndex = 0;
+    }
+    matrix = frames.get(frameIndex);
+  }
+  
+  @Override
+  public void draw(Game game) {
+    if (isVisible == false) return;
+    nextFrame();
+    super.draw(game);
   }
 }
