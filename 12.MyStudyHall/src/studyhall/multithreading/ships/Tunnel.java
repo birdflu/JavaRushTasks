@@ -1,7 +1,13 @@
 package studyhall.multithreading.ships;
 
 public class Tunnel {
-  public Tunnel(int firstArgumentValue) {
+  private int capacity = 0;
   
+  public Tunnel(int capacity) {
+  this.capacity = capacity;
+  }
+  
+  public int getCapacity() {
+    return capacity;
   }
 }

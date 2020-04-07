@@ -16,12 +16,8 @@ public class MultithreadingShips implements Runnable {
   private boolean execute(String commandString) throws InterruptedException {
     Command command = new Command(commandString);
     switch (command.getCommand()) {
-      case "sea":
-        executeSea(command);
-        break;
-      case "tunnel":
-        executeTunnel(command);
-        break;
+      case "sea": executeSea(command); break;
+      case "tunnel": executeTunnel(command); break;
       
       case "exit":
         sea.interrupt();
@@ -35,7 +31,6 @@ public class MultithreadingShips implements Runnable {
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
-        //break;
     }
     return false;
   }
