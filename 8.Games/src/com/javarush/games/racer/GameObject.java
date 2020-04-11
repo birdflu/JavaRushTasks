@@ -17,6 +17,11 @@ public class GameObject {
     height = matrix.length;
   }
   
+  public GameObject(int x, int y) {
+    this.x = x;
+    this.y = y;
+  }
+  
   public void draw(Game game) {
     for (int i = 0; i < width; i++) {
       for (int j = 0; j < height; j++) {
