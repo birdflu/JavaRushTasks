@@ -1,13 +1,17 @@
 package com.javarush.task.task31.task3110;
 
 import com.javarush.task.task31.task3110.exception.PathIsNotFoundException;
+import com.javarush.task.task31.task3110.exception.WrongZipFileException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class ZipFileManager {
@@ -68,5 +72,26 @@ public class ZipFileManager {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
+    }
+    
+    public List<FileProperties> getFilesList() throws Exception {
+        if (Files.isRegularFile(zipFile)) {
+            List<FileProperties> filePropertiesList = new ArrayList<>();
+            try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(zipFile))) {
+                ZipEntry entry = zipInputStream.getNextEntry();
+                while (entry != null){
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    copyData(zipInputStream, baos);
+    
+                    FileProperties file = new FileProperties(entry.getName(),
+                            entry.getSize(),
+                            entry.getCompressedSize(),
+                            entry.getMethod());
+                    filePropertiesList.add(file);
+                    entry = zipInputStream.getNextEntry();
+                }
+                return filePropertiesList;
+            }
+        } else throw new WrongZipFileException();
     }
 }
