@@ -25,7 +25,7 @@ public class GameObject {
   public void draw(Game game) {
     for (int i = 0; i < width; i++) {
       for (int j = 0; j < height; j++) {
-        game.setCellColor(i + x, j + y, Color.values()[matrix[i][j]]);
+        game.setCellColor(i + x, j + y, Color.values()[matrix[j][i]]);
       }
     }
   }
