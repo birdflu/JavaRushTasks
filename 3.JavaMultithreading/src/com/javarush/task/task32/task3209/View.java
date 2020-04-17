@@ -122,5 +122,16 @@ public class View extends JFrame implements ActionListener {
     return undoListener;
   }
   
+  public void selectHtmlTab() {
+    tabbedPane.setSelectedIndex(tabbedPane.indexOfTab("HTML"));
+    resetUndo();
+  }
   
+  public void update() {
+    htmlTextPane.setDocument(controller.getDocument());
+  }
+  
+  public void showAbout() {
+    JOptionPane.showMessageDialog(this, "this","INFORMATION_MESSAGE", JOptionPane.INFORMATION_MESSAGE);
+  }
 }

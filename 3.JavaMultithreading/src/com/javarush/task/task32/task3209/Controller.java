@@ -28,4 +28,8 @@ public class Controller {
     controller.view.init();
     controller.init();
   }
+  
+  public HTMLDocument getDocument() {
+    return document;
+  }
 }
