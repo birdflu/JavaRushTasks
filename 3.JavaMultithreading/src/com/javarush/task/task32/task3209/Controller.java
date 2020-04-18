@@ -20,6 +20,10 @@ public class Controller {
   
   public void init() {
     createNewDocument();
+    String name = "dsfd.sf.hTmL";
+    System.out.println(name.matches(".*html$"));
+    System.out.println(name.matches("(?i:.*\\." +"html" +"$)"));
+    
   }
   
   public void exit() {
