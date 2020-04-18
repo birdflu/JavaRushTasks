@@ -70,7 +70,6 @@ public class View extends JFrame implements ActionListener {
     getContentPane().add(tabbedPane, BorderLayout.CENTER);
   }
   
-  
   public void initGui() {
     initMenuBar();
     initEditor();
@@ -78,7 +77,10 @@ public class View extends JFrame implements ActionListener {
   }
   
   public void selectedTabChanged() {
-  
+    if (tabbedPane.getSelectedIndex() == tabbedPane.indexOfTab("HTML"))
+      controller.setPlainText(plainTextPane.getText());
+    else plainTextPane.setText(controller.getPlainText());
+    this.resetUndo();
   }
   
   @Override
