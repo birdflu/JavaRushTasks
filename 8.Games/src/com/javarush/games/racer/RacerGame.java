@@ -82,7 +82,10 @@ public class RacerGame extends Game {
   @Override
   public void onKeyPress(Key key) {
     if (key == Key.RIGHT) player.setDirection(Direction.RIGHT);
-    if (key == Key.LEFT) player.setDirection(Direction.LEFT);
+    if (key == Key.RIGHT) player.setDirection(Direction.RIGHT);
+    if (key == Key.UP) player.speed = 2;
+    if (key == Key.SPACE) { if (isGameStopped) createGame(); }
+    
   }
   
   @Override
