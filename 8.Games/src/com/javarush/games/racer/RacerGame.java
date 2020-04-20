@@ -76,8 +76,9 @@ public class RacerGame extends Game {
     
     if (roadManager.checkCrush(player)) {
       gameOver();
-    } else
-    {
+    } else {
+      if (roadManager.getPassedCarsCount() >= RACE_GOAL_CARS_COUNT)
+        finishLine.show();
       roadManager.generateNewRoadObjects(this);
       moveAll();
     }
@@ -87,9 +88,11 @@ public class RacerGame extends Game {
   @Override
   public void onKeyPress(Key key) {
     if (key == Key.RIGHT) player.setDirection(Direction.RIGHT);
-    if (key == Key.RIGHT) player.setDirection(Direction.RIGHT);
+    if (key == Key.LEFT) player.setDirection(Direction.LEFT);
     if (key == Key.UP) player.speed = 2;
-    if (key == Key.SPACE) { if (isGameStopped) createGame(); }
+    if (key == Key.SPACE) {
+      if (isGameStopped) createGame();
+    }
     
   }
   
