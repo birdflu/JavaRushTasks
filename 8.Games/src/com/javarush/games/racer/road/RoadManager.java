@@ -13,6 +13,7 @@ public class RoadManager {
   private static final int FIRST_LANE_POSITION = 16;
   private static final int FOURTH_LANE_POSITION = 44;
   private List<RoadObject> items = new ArrayList<>();
+  private static final int PLAYER_CAR_DISTANCE = 12;
   
   private RoadObject createRoadObject(RoadObjectType type, int x, int y) {
     if (type == RoadObjectType.THORN) return new Thorn(x, y);
@@ -24,26 +25,25 @@ public class RoadManager {
     int x = game.getRandomNumber(FIRST_LANE_POSITION, FOURTH_LANE_POSITION);
     int y = -1 * RoadObject.getHeight(type);
     RoadObject roadObject = createRoadObject(type, x, y);
-    if (roadObject != null) {
+    if (roadObject != null && (isRoadSpaceFree(roadObject)))
       items.add(roadObject);
-    }
   }
   
   public void draw(Game game) {
-    for (RoadObject roadObject: items) {
+    for (RoadObject roadObject : items) {
       roadObject.draw(game);
     }
   }
   
   public void move(int boost) {
-    for (RoadObject roadObject: items) {
+    for (RoadObject roadObject : items) {
       roadObject.move(boost + roadObject.speed);
     }
     deletePassedItems();
   }
   
   private boolean isThornExists() {
-    for(RoadObject roadObject: items) {
+    for (RoadObject roadObject : items) {
       if (roadObject instanceof Thorn) {
         return true;
       }
@@ -68,8 +68,8 @@ public class RoadManager {
   }
   
   public boolean checkCrush(PlayerCar playerCar) {
-    for (RoadObject roadObject: items
-         ) {
+    for (RoadObject roadObject : items
+    ) {
       if (roadObject.isCollision(playerCar)) return true;
     }
     return false;
@@ -77,7 +77,14 @@ public class RoadManager {
   
   private void generateRegularCar(Game game) {
     int carTypeNumber = game.getRandomNumber(4);
-    if (game.getRandomNumber(100)<30)
+    if (game.getRandomNumber(100) < 30)
       addRoadObject(RoadObjectType.values()[carTypeNumber], game);
+  }
+  
+  private boolean isRoadSpaceFree(RoadObject object) {
+    for (RoadObject o : items)
+      if (o.isCollisionWithDistance(object, PLAYER_CAR_DISTANCE))
+        return false;
+    return true;
   }
 }
