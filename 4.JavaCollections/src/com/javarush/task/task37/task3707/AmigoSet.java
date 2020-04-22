@@ -55,6 +55,16 @@ public class AmigoSet<E> extends AbstractSet implements Serializable, Cloneable,
     } catch (Exception e) {
       return false;
     }
+  }
   
+  @Override
+  public Object clone() throws InternalError{
+    try {
+      AmigoSet copy = (AmigoSet)super.clone();
+      copy.map = (HashMap) map.clone();
+      return copy;
+    } catch (Exception e) {
+      throw new InternalError(e);
+    }
   }
 }
