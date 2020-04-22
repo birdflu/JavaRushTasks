@@ -1,11 +1,14 @@
 package com.javarush.task.task37.task3707;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
 
 public class AmigoSet<E> extends AbstractSet implements Serializable, Cloneable, Set {
   private static final Object PRESENT = new Object();
-  private transient HashMap<E, Object> map;
+  public transient HashMap<E, Object> map;
   
   public AmigoSet() {
     map = new HashMap<>();
@@ -58,13 +61,43 @@ public class AmigoSet<E> extends AbstractSet implements Serializable, Cloneable,
   }
   
   @Override
-  public Object clone() throws InternalError{
+  public Object clone() throws InternalError {
     try {
-      AmigoSet copy = (AmigoSet)super.clone();
+      AmigoSet copy = (AmigoSet) super.clone();
       copy.map = (HashMap) map.clone();
       return copy;
     } catch (Exception e) {
       throw new InternalError(e);
     }
   }
+  
+  private void writeObject(ObjectOutputStream objectOutputStream) throws IOException {
+    objectOutputStream.defaultWriteObject();
+    int size = map.size();
+    int capacity = HashMapReflectionHelper.callHiddenMethod(map, "capacity");
+    float loadFactor  = HashMapReflectionHelper.callHiddenMethod(map, "loadFactor");
+    objectOutputStream.writeObject(size);
+    objectOutputStream.writeObject(capacity);
+    objectOutputStream.writeObject(loadFactor);
+    for (E element :  map.keySet()
+         ) {
+      objectOutputStream.writeObject(element);
+    }
+  }
+  
+  private void readObject(ObjectInputStream objectInputStream) throws IOException, ClassNotFoundException {
+    objectInputStream.defaultReadObject();
+    int size = (int) objectInputStream.readObject();
+    int capacity = (int) objectInputStream.readObject();
+    float loadFactor = (float) objectInputStream.readObject();
+
+    map = new HashMap<E, Object>(capacity, loadFactor);
+  
+    for (int i = 0; i < size; i++) {
+      map.put((E)objectInputStream.readObject(), PRESENT);
+    }
+    
+  }
+  
+  
 }
