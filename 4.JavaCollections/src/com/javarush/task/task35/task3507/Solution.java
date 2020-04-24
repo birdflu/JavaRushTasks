@@ -11,29 +11,30 @@ import java.util.Set;
 ClassLoader - что это такое?
 */
 public class Solution {
+    
     public static void main(String[] args) {
         Set<? extends Animal> allAnimals = getAllAnimals(
                 Solution.class.getProtectionDomain().getCodeSource().getLocation().getPath()
                 + Solution.class.getPackage().getName().replaceAll("[.]", "/") + "/data");
         System.out.println(allAnimals);
     }
-
+    
     public static Set<? extends Animal> getAllAnimals(String pathToAnimals) {
         Set<Animal> set = new HashSet<>();
-        ClassLoader classLoader = Solution.class.getClassLoader();
     
-        File folder = new File(pathToAnimals);
+        File[] list = new File(pathToAnimals).listFiles();
     
-        String[] files = folder.list();
-    
-        for ( String fileName : files ) {
+        for (File file : list) {
             boolean isPublicConstructor = false;
             boolean isImplAnimal = false;
             try {
-                String className = Solution.class.getPackage().getName() + "." +  "data" + "." + fileName.replace(".class", "");
-//                System.out.println("File: " + pathToAnimals + "/" + fileName);
+                String className = Solution.class.getPackage().getName() + "." +  "data" + "." + file.getName().replace(".class", "");
+//                System.out.println("File: " + pathToAnimals + "/" + file.getName());
 //                System.out.println("Class: " + className);
-                Class<? extends Animal> clazz  = (Class<? extends Animal>) classLoader.loadClass(className);
+//                Class<? extends Animal> clazz  = (Class<? extends Animal>) (new MyClassLoader()).loadClass(className);
+//                String packageName = Solution.class.getPackage().getName() + ".data";
+                Class clazz = new MyClassLoader().load(file.toPath(), className);
+                
                 Class<?>[] parameterTypes = {};
                 Constructor constructor = clazz.getDeclaredConstructor(parameterTypes);
                 
@@ -49,10 +50,10 @@ public class Solution {
                 }
                 if (isImplAnimal && isPublicConstructor)
                 {
-                    Animal animal = clazz.newInstance();
+                    Animal animal = (Animal) clazz.newInstance();
                     set.add(animal);
                 }
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
+            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException e) {
                // e.printStackTrace();
             }
     
