@@ -14,6 +14,7 @@ public class Solution {
     testStrategy(new FileStorageStrategy(), 10);
     testStrategy(new OurHashBiMapStorageStrategy(), 10000);
     testStrategy(new HashBiMapStorageStrategy(), 10000);
+    testStrategy(new DualHashBidiMapStorageStrategy(), 10000);
     
     /*FileBucket fb = new FileBucket();
     Entry e3 = new Entry(3, 3L, "3", null);
