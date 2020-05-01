@@ -40,7 +40,7 @@ public class FileBucket {
   
   public Entry getEntry() {
     // - должен забирать entry из файла. Если файл имеет нулевой размер, вернуть null
-    System.out.println(getFileSize());
+   // System.out.println(getFileSize());
     if (getFileSize() > 0)
       try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(path))) {
         return (Entry) ois.readObject();

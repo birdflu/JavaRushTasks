@@ -1,7 +1,8 @@
 package com.javarush.task.task33.task3310;
 
-import com.javarush.task.task33.task3310.strategy.Entry;
-import com.javarush.task.task33.task3310.strategy.FileBucket;
+import com.javarush.task.task33.task3310.strategy.FileStorageStrategy;
+import com.javarush.task.task33.task3310.strategy.HashMapStorageStrategy;
+import com.javarush.task.task33.task3310.strategy.OurHashMapStorageStrategy;
 import com.javarush.task.task33.task3310.strategy.StorageStrategy;
 
 import java.util.Date;
@@ -11,9 +12,10 @@ import java.util.Set;
 public class Solution {
   public static void main(String[] args) {
     
-   // testStrategy(new HashMapStorageStrategy(), 10000);
-   // testStrategy(new OurHashMapStorageStrategy(), 10000);
-    FileBucket fb = new FileBucket();
+    testStrategy(new HashMapStorageStrategy(), 10000);
+    testStrategy(new OurHashMapStorageStrategy(), 10000);
+    testStrategy(new FileStorageStrategy(), 100);
+    /*FileBucket fb = new FileBucket();
     Entry e3 = new Entry(3, 3L, "3", null);
     Entry e2 = new Entry(2, 2L, "2", e3);
     Entry e1 = new Entry(1, 1L, "1", e2);
@@ -22,7 +24,7 @@ public class Solution {
 
     Entry e = fb.getEntry();
     System.out.println(e);
-    
+    */
   }
   
   
@@ -68,8 +70,8 @@ public class Solution {
       Helper.printMessage( "Тест не пройден.");
     }
   
-/*    System.out.println(strings.size());
-    System.out.println(Arrays.toString(strings.toArray()));
-    System.out.println(set.size());*/
+//    System.out.println(strings.size());
+//    System.out.println(Arrays.toString(strings.toArray()));
+//    System.out.println(set.size());
   }
 }
