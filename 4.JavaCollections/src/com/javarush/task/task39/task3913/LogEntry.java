@@ -9,7 +9,7 @@ public class LogEntry {
   private String user;
   private Date date; // day.month.year hour:minute:second
   private Event event;
-  private int taskNumber = Integer.MIN_VALUE;
+  private Integer task;
   private Status status;
   
   public LogEntry(String entry) {
@@ -39,7 +39,7 @@ public class LogEntry {
   
     i = i + 1;
     if (i < elements.length - 1) {
-      this.taskNumber = Integer.parseInt(elements[i]);
+      this.task = Integer.parseInt(elements[i]);
       i = i + 1;
     }
   
@@ -77,6 +77,10 @@ public class LogEntry {
     return status;
   }
   
+  public Integer getTask() {
+    return task;
+  }
+  
   @Override
   public String toString() {
     return "LogEntry{" +
@@ -84,7 +88,7 @@ public class LogEntry {
             ", user='" + user + '\'' +
             ", date=" + date +
             ", event=" + event +
-            ", taskNumber=" + (taskNumber == Integer.MIN_VALUE ? "null": taskNumber) +
+            ", taskNumber=" + task +
             ", status=" + status +
             '}';
   }
