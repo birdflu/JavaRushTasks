@@ -10,8 +10,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 public class Testing {
   @Test
@@ -130,6 +132,49 @@ public class Testing {
     } catch (ParseException e) {
       e.printStackTrace();
     }
+  
+//    Метод getNumberOfAllEvents(Date, Date) должен возвращать количество уникальных событий за выбранный период.
+    assert(logParser.getNumberOfAllEvents(after, before) == 2);
+//    Метод getAllEvents(Date, Date) должен возвращать множество уникальных событий за выбранный период.
+    assertArrayEquals(sort(logParser.getAllEvents(after, before).toArray()),
+            new Event[]{Event.LOGIN, Event.WRITE_MESSAGE});
+//    Метод getEventsForIP(String, Date, Date) должен возвращать множество уникальных событий,
+//    которые происходили с переданного IP адреса за выбранный период.
+    assertArrayEquals(sort(logParser.getEventsForIP("146.34.15.5", after, before).toArray()),
+            new Event[]{Event.LOGIN, Event.WRITE_MESSAGE});
+//    Метод getEventsForUser(String, Date, Date) должен возвращать множество уникальных событий,
+//    которые произвел переданный пользователь за выбранный период.
+    assertArrayEquals(sort(logParser.getEventsForUser("Eduard Petrovich Morozko", after, before).toArray()),
+            new Event[]{Event.LOGIN, Event.WRITE_MESSAGE});
+//    Метод getFailedEvents(Date, Date) должен возвращать множество уникальных событий,
+//    у которых статус выполнения FAILED за выбранный период.
+    assertArrayEquals(sort(logParser.getFailedEvents(null, null).toArray()),
+            new Event[]{Event.WRITE_MESSAGE, Event.DONE_TASK});
+//    Метод getErrorEvents(Date, Date) должен возвращать множество уникальных событий,
+//    у которых статус выполнения ERROR за выбранный период.
+    assertArrayEquals(sort(logParser.getErrorEvents(null, null).toArray()),
+            new Event[]{Event.SOLVE_TASK});
+//    Метод getNumberOfAttemptToSolveTask(int, Date, Date) должен возвращать количество попыток
+//    решить задачу с номером task за выбранный период.
+    assert(logParser.getNumberOfAttemptToSolveTask(18, null, null) == 3);
+//    Метод getNumberOfSuccessfulAttemptToSolveTask(int, Date, Date) должен возвращать количество
+//    успешных решений задачи с номером task за выбранный период.
+    assert(logParser.getNumberOfSuccessfulAttemptToSolveTask(15, null, null) == 1);
+    assert(logParser.getNumberOfSuccessfulAttemptToSolveTask(48, null, null) == 1);
+//    Метод getAllSolvedTasksAndTheirNumber(Date, Date) должен возвращать мапу
+//    (номер_задачи : количество_попыток_решить_ее) за выбранный период.
+    assertTrue(logParser.getAllSolvedTasksAndTheirNumber(null, null).equals(
+            new HashMap<Integer, Integer>() {{
+              put(1, 1);
+              put(18, 3);
+            }}));
+//    Метод getAllDoneTasksAndTheirNumber(Date, Date) должен возвращать мапу
+//    (номер_задачи : сколько_раз_ее_решили) за выбранный период.
+    assertTrue(logParser.getAllDoneTasksAndTheirNumber(null, null).equals(
+            new HashMap<Integer, Integer>() {{
+              put(15, 1);
+              put(48, 1);
+            }}));
   }
   
   private Object[] sort(Object[] array) {
