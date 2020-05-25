@@ -1,9 +1,7 @@
 package com.javarush.task.task39.task3913;
 
-import com.javarush.task.task39.task3913.query.DateQuery;
-import com.javarush.task.task39.task3913.query.EventQuery;
-import com.javarush.task.task39.task3913.query.IPQuery;
-import com.javarush.task.task39.task3913.query.UserQuery;
+import com.javarush.task.task39.task3913.query.*;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -11,7 +9,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
-public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
+public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQuery {
   private final Path logDir;
   private List<LogEntry> logEntries = new ArrayList<>();
   
@@ -108,7 +106,8 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
               (user != null && event != null && task != null &&
                       user.equals(logEntry.getUser()) && event == logEntry.getEvent() && task.equals(logEntry.getTask())) ||
               (user != null && status != null && user.equals(logEntry.getUser()) && status == logEntry.getStatus()) ||
-              (user == null && status != null && status == logEntry.getStatus())) {
+              (user == null && status != null && status == logEntry.getStatus()) ||
+              (user == null && event == null && status == null && task == null)) {
         uniqueDates.add(logEntry.getDate());
       }
     }
@@ -139,6 +138,16 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
     return uniqueEvents;
   }
   
+  public Set<Status> getStatuses(String ip, String user, Event event, Integer task, Date after, Date before) {
+    Set<Status> uniqueStatuses = new HashSet<>();
+    for (LogEntry logEntry : getEntries(after, before)) {
+      if ((ip == null && user == null && event == null && task == null)) {
+        uniqueStatuses.add(logEntry.getStatus());
+      }
+    }
+    return uniqueStatuses;
+  }
+  
   private Map<Integer, Integer> getAllTasksAndTheirNumberMap(Event event, Status status, Date after, Date before) {
     Map<Integer, Integer> map = new HashMap<>();
     for (LogEntry logEntry : getEntries(after, before)) {
@@ -150,6 +159,10 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
       }
     }
     return map;
+  }
+  
+  public Set<Status> getAllStatuses(Date after, Date before) {
+    return getStatuses(null, null, null, null, after, before);
   }
   
   @Override
@@ -329,5 +342,18 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery {
   @Override
   public Map<Integer, Integer> getAllDoneTasksAndTheirNumber(Date after, Date before) {
     return getAllTasksAndTheirNumberMap(Event.DONE_TASK , null, after, before);
+  }
+  
+  @Override
+  public Set<Object> execute(String query) {
+    Query q = new Query(query);
+    if (q.getConditionKey() == null) {
+      if ("ip".equals(q.getFieldName())) return new HashSet<>(getUniqueIPs(null, null));
+      if ("user".equals(q.getFieldName())) return new HashSet<>(getAllUsers());
+      if ("date".equals(q.getFieldName())) return new HashSet<>(getDates(null, null, null, null, null, null));
+      if ("event".equals(q.getFieldName())) return new HashSet<>(getAllEvents(null, null));
+      if ("status".equals(q.getFieldName())) return new HashSet<>(getAllStatuses(null, null));
+    }
+    return null;
   }
 }
