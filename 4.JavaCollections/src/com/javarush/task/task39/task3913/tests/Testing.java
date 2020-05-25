@@ -30,52 +30,106 @@ public class Testing {
     assert (logParser.getNumberOfUniqueIPs(after, before) == 2);
     assert (logParser.getNumberOfUniqueIPs(null, before) == 3);
     assert (logParser.getNumberOfUniqueIPs(null, null) == 5);
-    //  Метод getUniqueIPs(Date, Date) класса LogParser должен возвращать множество, содержащее все не повторяющиеся IP адреса за выбранный период.
-    //  Метод getIPsForUser(String, Date, Date) класса LogParser должен возвращать IP адреса, с которых работал переданный пользователь за выбранный период.
+    //  Метод getUniqueIPs(Date, Date) класса LogParser должен возвращать множество, содержащее все не повторяющиеся
+    //  IP адреса за выбранный период.
+    //  Метод getIPsForUser(String, Date, Date) класса LogParser должен возвращать IP адреса,
+    //  с которых работал переданный пользователь за выбранный период.
     assertArrayEquals(sort(logParser.getIPsForUser("Eduard Petrovich Morozko", null, null).toArray()),
             new String[]{"127.0.0.1", "146.34.15.5"});
     assertArrayEquals(logParser.getIPsForUser("Eduard Petrovich Morozko", before, null).toArray(),
             new String[]{"146.34.15.5"});
-    //  Метод getIPsForEvent(Event, Date, Date) класса LogParser должен возвращать IP адреса, с которых было произведено переданное событие за выбранный период.
+    //  Метод getIPsForEvent(Event, Date, Date) класса LogParser должен возвращать IP адреса,
+    //  с которых было произведено переданное событие за выбранный период.
     assertArrayEquals(sort(logParser.getIPsForEvent(Event.SOLVE_TASK, null, null).toArray()),
             new String[]{"12.12.12.12", "120.120.120.122", "192.168.100.2"});
-    //  Метод getIPsForStatus(Status, Date, Date) класса LogParser должен возвращать IP адреса, события с которых закончилось переданным статусом за выбранный период.
+    //  Метод getIPsForStatus(Status, Date, Date) класса LogParser должен возвращать IP адреса,
+    //  события с которых закончилось переданным статусом за выбранный период.
     assertArrayEquals(sort(logParser.getIPsForStatus(Status.FAILED, null, null).toArray()),
             new String[]{"127.0.0.1", "146.34.15.5"});
     //  Метод getAllUsers() должен возвращать множество содержащее всех пользователей.
     assertArrayEquals(sort(logParser.getAllUsers().toArray()), new String[]{"Amigo", "Eduard Petrovich Morozko", "Vasya Pupkin"});
     //  Метод getNumberOfUsers(Date, Date) должен возвращать количество уникальных пользователей за выбранный период.
     assert (logParser.getNumberOfUsers(after, before) == 1);
-    //  Метод getNumberOfUserEvents(String, Date, Date) должен возвращать количество уникальных событий от переданного пользователя за выбранный период.
+    //  Метод getNumberOfUserEvents(String, Date, Date) должен возвращать количество уникальных событий
+    //  от переданного пользователя за выбранный период.
     assert (logParser.getNumberOfUserEvents("Eduard Petrovich Morozko", after, before) == 2);
-    //  Метод getUsersForIP(String, Date, Date) должен возвращать множество содержащее пользователей, которые работали с переданного IP адреса за выбранный период.
+    //  Метод getUsersForIP(String, Date, Date) должен возвращать множество содержащее пользователей,
+    //  которые работали с переданного IP адреса за выбранный период.
     assertArrayEquals(sort(logParser.getUsersForIP("146.34.15.5", after, before).toArray()),
             new String[]{"Eduard Petrovich Morozko"});
     assertArrayEquals(sort(logParser.getUsersForIP("127.0.0.1", null, before).toArray()),
             new String[]{"Amigo", "Eduard Petrovich Morozko"});
-    //  Метод getLoggedUsers(Date, Date) должен возвращать множество содержащее пользователей, которые были залогинены за выбранный период.
+    //  Метод getLoggedUsers(Date, Date) должен возвращать множество содержащее пользователей,
+    //  которые были залогинены за выбранный период.
     assertArrayEquals(sort(logParser.getLoggedUsers(null, before).toArray()),
             new String[]{"Amigo", "Eduard Petrovich Morozko"});
-    //  Метод getDownloadedPluginUsers(Date, Date) должен возвращать множество содержащее пользователей, которые скачали плагин за выбранный период.
+    //  Метод getDownloadedPluginUsers(Date, Date) должен возвращать множество содержащее пользователей,
+    //  которые скачали плагин за выбранный период.
     assertArrayEquals(sort(logParser.getDownloadedPluginUsers(null, before).toArray()),
             new String[]{"Eduard Petrovich Morozko"});
-    //  Метод getWroteMessageUsers(Date, Date) должен возвращать множество содержащее пользователей, которые отправили сообщение за выбранный период.
+    //  Метод getWroteMessageUsers(Date, Date) должен возвращать множество содержащее пользователей,
+    //  которые отправили сообщение за выбранный период.
     assertArrayEquals(sort(logParser.getWroteMessageUsers(null, null).toArray()),
             new String[]{"Eduard Petrovich Morozko", "Vasya Pupkin"});
-    //  Метод getSolvedTaskUsers(Date, Date) должен возвращать множество содержащее пользователей, которые решали любую задачу за выбранный период.
+    //  Метод getSolvedTaskUsers(Date, Date) должен возвращать множество содержащее пользователей,
+    //  которые решали любую задачу за выбранный период.
     assertArrayEquals(sort(logParser.getSolvedTaskUsers(null, null).toArray()),
             new String[]{"Amigo", "Vasya Pupkin"});
-    //  Метод getSolvedTaskUsers(Date, Date, int task) должен возвращать множество содержащее пользователей, которые решали задачу с номером task за выбранный период.
+    //  Метод getSolvedTaskUsers(Date, Date, int task) должен возвращать множество содержащее пользователей,
+    //  которые решали задачу с номером task за выбранный период.
     assertArrayEquals(sort(logParser.getSolvedTaskUsers(null, null, 18).toArray()),
             new String[]{"Amigo", "Vasya Pupkin"});
-    //  Метод getDoneTaskUsers(Date, Date) должен возвращать множество содержащее пользователей, которые решили любую задачу за выбранный период.
+    //  Метод getDoneTaskUsers(Date, Date) должен возвращать множество содержащее пользователей,
+    //  которые решили любую задачу за выбранный период.
     assertArrayEquals(sort(logParser.getDoneTaskUsers(null, null).toArray()),
             new String[]{"Eduard Petrovich Morozko", "Vasya Pupkin"});
-    //  Метод getDoneTaskUsers(Date, Date, int task) должен возвращать множество содержащее пользователей, которые решили задачу с номером task за выбранный период.
+    //  Метод getDoneTaskUsers(Date, Date, int task) должен возвращать множество содержащее пользователей,
+    //  которые решили задачу с номером task за выбранный период.
     //  На ОК проверять не нужно
     assertArrayEquals(sort(logParser.getDoneTaskUsers(null, null, 15).toArray()),
             new String[]{"Vasya Pupkin"});
     assert(logParser.getDoneTaskUsers(null, null, 48).size() == 1);
+    
+    try {
+      //   Метод getDatesForUserAndEvent(String, Event, Date, Date) должен возвращать множество дат,
+      //   когда переданный пользователь произвел переданное событие за выбранный период.
+      assertArrayEquals(sort(logParser.getDatesForUserAndEvent("Eduard Petrovich Morozko", Event.WRITE_MESSAGE, after, before).toArray()),
+              new Date[]{new SimpleDateFormat("d.M.yyyy H:m:s").parse("11.12.2013 10:11:12"),
+                      new SimpleDateFormat("d.M.yyyy H:m:s").parse("12.12.2013 21:56:30")});
+      //   Метод getDatesWhenSomethingFailed(Date, Date) должен возвращать множество дат,
+      //   когда любое событие не выполнилось за выбранный период.
+      assertArrayEquals(sort(logParser.getDatesWhenSomethingFailed(after, before).toArray()),
+              new Date[]{new SimpleDateFormat("d.M.yyyy H:m:s").parse("11.12.2013 10:11:12")});
+      //   Метод getDatesWhenErrorHappened(Date, Date) должен возвращать множество дат,
+      //   когда любое событие закончилось ошибкой за выбранный период.
+      assertArrayEquals(sort(logParser.getDatesWhenErrorHappened(null, null).toArray()),
+              new Date[]{new SimpleDateFormat("d.M.yyyy H:m:s").parse("30.01.2014 12:56:22")});
+      //   Метод getDateWhenUserLoggedFirstTime(String, Date, Date) должен возвращать дату,
+      //   когда переданный пользователь впервые залогинился за выбранный период. Если такой даты в логах нет - null.
+      assert(logParser.getDateWhenUserLoggedFirstTime("Eduard Petrovich Morozko", null, before).compareTo(
+              new SimpleDateFormat("d.M.yyyy H:m:s").parse("03.01.2014 03:45:23")) == 0);
+      //   Метод getDateWhenUserSolvedTask(String, int, Date, Date) должен возвращать дату,
+      //   когда переданный пользователь впервые попытался решить задачу с номером task за выбранный период. Если такой даты в логах нет - null.
+      assert(logParser.getDateWhenUserSolvedTask("Vasya Pupkin", 18, null, null).compareTo(
+              new SimpleDateFormat("d.M.yyyy H:m:s").parse("30.01.2014 12:56:22")) == 0);
+      assert(logParser.getDateWhenUserSolvedTask("Vasya Pupkin", 18, null, before) == null);
+      //   Метод getDateWhenUserDoneTask(String, int, Date, Date) должен возвращать дату,
+      //   когда переданный пользователь впервые решил задачу с номером task за выбранный период. Если такой даты в логах нет - null.
+      assert(logParser.getDateWhenUserDoneTask("Vasya Pupkin", 15, null, before).compareTo(
+              new SimpleDateFormat("d.M.yyyy H:m:s").parse("30.08.2012 16:08:40")) == 0);
+      assert(logParser.getDateWhenUserDoneTask("Vasya Pupkin", 18, null, before) == null);
+      //   Метод getDatesWhenUserWroteMessage(String, Date, Date) должен возвращать множество дат,
+      //   когда переданный пользователь написал сообщение за выбранный период.
+      assertArrayEquals(sort(logParser.getDatesWhenUserWroteMessage("Eduard Petrovich Morozko", after, before).toArray()),
+              new Date[]{new SimpleDateFormat("d.M.yyyy H:m:s").parse("11.12.2013 10:11:12"),
+                      new SimpleDateFormat("d.M.yyyy H:m:s").parse("12.12.2013 21:56:30")});
+      //   Метод getDatesWhenUserDownloadedPlugin(String, Date, Date) должен возвращать множество дат,
+      //   когда переданный пользователь скачал плагин за выбранный период.
+      assertArrayEquals(sort(logParser.getDatesWhenUserDownloadedPlugin("Eduard Petrovich Morozko", null, before).toArray()),
+              new Date[]{new SimpleDateFormat("d.M.yyyy H:m:s").parse("13.09.2013 5:04:50")});
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
   }
   
   private Object[] sort(Object[] array) {

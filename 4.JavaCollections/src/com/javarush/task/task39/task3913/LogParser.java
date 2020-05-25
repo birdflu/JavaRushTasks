@@ -1,5 +1,6 @@
 package com.javarush.task.task39.task3913;
 
+import com.javarush.task.task39.task3913.query.DateQuery;
 import com.javarush.task.task39.task3913.query.IPQuery;
 import com.javarush.task.task39.task3913.query.UserQuery;
 
@@ -10,7 +11,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 
-public class LogParser implements IPQuery, UserQuery {
+public class LogParser implements IPQuery, UserQuery, DateQuery {
   private final Path logDir;
   private List<LogEntry> logEntries = new ArrayList<>();
   
@@ -74,10 +75,10 @@ public class LogParser implements IPQuery, UserQuery {
   private Set<String> getIPs(String user, Event event, Status status, Date after, Date before) {
     Set<String> uniqueIPs = new HashSet<>();
     for (LogEntry logEntry : getEntries(after, before)) {
-      if (user != null && user.equals(logEntry.getUser()) ||
-              (event != null && event == logEntry.getEvent()) ||
-              (status != null && status == logEntry.getStatus()) ||
-              (user == null && event == null && status == null)) {
+      if ((user != null && user.equals(logEntry.getUser())) ||
+          (event != null && event == logEntry.getEvent()) ||
+          (status != null && status == logEntry.getStatus()) ||
+          (user == null && event == null && status == null)) {
         uniqueIPs.add(logEntry.getIp());
       }
     }
@@ -89,7 +90,6 @@ public class LogParser implements IPQuery, UserQuery {
     for (LogEntry logEntry : getEntries(after, before)) {
       if ((ip != null && ip.equals(logEntry.getIp())) ||
               (event != null && task == null && event == logEntry.getEvent()) ||
-              //(event != null && task != null && event == logEntry.getEvent() && task.equals(logEntry.getTask())) ||
               (event != null && task != null && status != null && event == logEntry.getEvent()
                       && task.equals(logEntry.getTask()) && status.equals(logEntry.getStatus())) ||
               (event != null && task != null && status == null && event == logEntry.getEvent()
@@ -99,6 +99,32 @@ public class LogParser implements IPQuery, UserQuery {
       }
     }
     return uniqueUsers;
+  }
+  
+  private Set<Date> getDates(String user, Event event, Status status, Integer task, Date after, Date before) {
+    Set<Date> uniqueDates = new HashSet<>();
+    for (LogEntry logEntry : getEntries(after, before)) {
+      if ((user != null && event != null && task == null && user.equals(logEntry.getUser()) && event == logEntry.getEvent()) ||
+          (user != null && event != null && task != null &&
+                  user.equals(logEntry.getUser()) && event == logEntry.getEvent() && task.equals(logEntry.getTask())) ||
+          (user != null && status != null && user.equals(logEntry.getUser()) && status == logEntry.getStatus()) ||
+          (user == null && status != null && status == logEntry.getStatus()))
+      {
+        uniqueDates.add(logEntry.getDate());
+      }
+    }
+    return uniqueDates;
+  }
+  
+  private Date getFirstDate(String user, Event event, Integer task, Date after, Date before) {
+    Set<Date> dates = getDates(user, event, null, task, after, before);
+    if (dates.size() == 0) return null;
+    else {
+      List<Date> result = new ArrayList();
+      result.addAll(dates);
+      Collections.sort(result);
+      return result.get(0);
+    }
   }
   
   @Override
@@ -186,5 +212,45 @@ public class LogParser implements IPQuery, UserQuery {
   public Set<String> getDoneTaskUsers(Date after, Date before, int task) {
     //  На ОК проверять не нужно (валидатор)
     return getUsers(null, Event.DONE_TASK, null, task, after, before);
+  }
+  
+  @Override
+  public Set<Date> getDatesForUserAndEvent(String user, Event event, Date after, Date before) {
+    return getDates(user, event, null, null, after, before);
+  }
+  
+  @Override
+  public Set<Date> getDatesWhenSomethingFailed(Date after, Date before) {
+    return getDates(null, null, Status.FAILED, null, after, before);
+  }
+  
+  @Override
+  public Set<Date> getDatesWhenErrorHappened(Date after, Date before) {
+    return getDates(null, null, Status.ERROR, null, after, before);
+  }
+  
+  @Override
+  public Date getDateWhenUserLoggedFirstTime(String user, Date after, Date before) {
+    return getFirstDate(user, Event.LOGIN, null, after, before);
+  }
+  
+  @Override
+  public Date getDateWhenUserSolvedTask(String user, int task, Date after, Date before) {
+    return getFirstDate(user, Event.SOLVE_TASK, task, after, before);
+  }
+  
+  @Override
+  public Date getDateWhenUserDoneTask(String user, int task, Date after, Date before) {
+    return getFirstDate(user, Event.DONE_TASK, task, after, before);
+  }
+  
+  @Override
+  public Set<Date> getDatesWhenUserWroteMessage(String user, Date after, Date before) {
+    return getDates(user, Event.WRITE_MESSAGE, null, null, after, before);
+  }
+  
+  @Override
+  public Set<Date> getDatesWhenUserDownloadedPlugin(String user, Date after, Date before) {
+    return getDates(user, Event.DOWNLOAD_PLUGIN, null, null, after, before);
   }
 }
