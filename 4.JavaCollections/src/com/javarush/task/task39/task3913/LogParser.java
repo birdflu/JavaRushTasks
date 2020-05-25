@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQuery {
@@ -92,6 +94,7 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
                       && task.equals(logEntry.getTask()) && status.equals(logEntry.getStatus())) ||
               (event != null && task != null && status == null && event == logEntry.getEvent()
                       && task.equals(logEntry.getTask())) ||
+              (status != null && status == logEntry.getStatus()) ||
               (ip == null && event == null && status == null && task == null)) {
         uniqueUsers.add(logEntry.getUser());
       }
@@ -99,15 +102,18 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
     return uniqueUsers;
   }
   
-  private Set<Date> getDates(String user, Event event, Status status, Integer task, Date after, Date before) {
+  private Set<Date> getDates(String ip, String user, Event event, Status status, Integer task, Date after, Date before) {
     Set<Date> uniqueDates = new HashSet<>();
     for (LogEntry logEntry : getEntries(after, before)) {
-      if ((user != null && event != null && task == null && user.equals(logEntry.getUser()) && event == logEntry.getEvent()) ||
+      if ((ip != null && ip.equals(logEntry.getIp())) ||
+              user != null && ip == null && event == null && task == null && user.equals(logEntry.getUser()) ||
+              (user != null && event != null && task == null && user.equals(logEntry.getUser()) && event == logEntry.getEvent()) ||
               (user != null && event != null && task != null &&
                       user.equals(logEntry.getUser()) && event == logEntry.getEvent() && task.equals(logEntry.getTask())) ||
               (user != null && status != null && user.equals(logEntry.getUser()) && status == logEntry.getStatus()) ||
-              (user == null && status != null && status == logEntry.getStatus()) ||
-              (user == null && event == null && status == null && task == null)) {
+              (ip == null && user == null && status != null && event == null && status == logEntry.getStatus()) ||
+              (ip == null && user == null && status == null && event != null && event == logEntry.getEvent()) ||
+              (ip == null && user == null && event == null && status == null && task == null)) {
         uniqueDates.add(logEntry.getDate());
       }
     }
@@ -115,7 +121,7 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   }
   
   private Date getFirstDate(String user, Event event, Integer task, Date after, Date before) {
-    Set<Date> dates = getDates(user, event, null, task, after, before);
+    Set<Date> dates = getDates(null, user, event, null, task, after, before);
     if (dates.size() == 0) return null;
     else {
       List<Date> result = new ArrayList();
@@ -141,7 +147,10 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   public Set<Status> getStatuses(String ip, String user, Event event, Integer task, Date after, Date before) {
     Set<Status> uniqueStatuses = new HashSet<>();
     for (LogEntry logEntry : getEntries(after, before)) {
-      if ((ip == null && user == null && event == null && task == null)) {
+      if ((ip != null && ip.equals(logEntry.getIp())) ||
+              (user != null && user.equals(logEntry.getUser())) ||
+              (event != null && event == logEntry.getEvent()) ||
+              (ip == null && user == null && event == null && task == null)) {
         uniqueStatuses.add(logEntry.getStatus());
       }
     }
@@ -254,17 +263,17 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   
   @Override
   public Set<Date> getDatesForUserAndEvent(String user, Event event, Date after, Date before) {
-    return getDates(user, event, null, null, after, before);
+    return getDates(null, user, event, null, null, after, before);
   }
   
   @Override
   public Set<Date> getDatesWhenSomethingFailed(Date after, Date before) {
-    return getDates(null, null, Status.FAILED, null, after, before);
+    return getDates(null, null, null, Status.FAILED, null, after, before);
   }
   
   @Override
   public Set<Date> getDatesWhenErrorHappened(Date after, Date before) {
-    return getDates(null, null, Status.ERROR, null, after, before);
+    return getDates(null, null, null, Status.ERROR, null, after, before);
   }
   
   @Override
@@ -284,12 +293,12 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   
   @Override
   public Set<Date> getDatesWhenUserWroteMessage(String user, Date after, Date before) {
-    return getDates(user, Event.WRITE_MESSAGE, null, null, after, before);
+    return getDates(null, user, Event.WRITE_MESSAGE, null, null, after, before);
   }
   
   @Override
   public Set<Date> getDatesWhenUserDownloadedPlugin(String user, Date after, Date before) {
-    return getDates(user, Event.DOWNLOAD_PLUGIN, null, null, after, before);
+    return getDates(null, user, Event.DOWNLOAD_PLUGIN, null, null, after, before);
   }
   
   @Override
@@ -350,9 +359,72 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
     if (q.getConditionKey() == null) {
       if ("ip".equals(q.getFieldName())) return new HashSet<>(getUniqueIPs(null, null));
       if ("user".equals(q.getFieldName())) return new HashSet<>(getAllUsers());
-      if ("date".equals(q.getFieldName())) return new HashSet<>(getDates(null, null, null, null, null, null));
+      if ("date".equals(q.getFieldName())) return new HashSet<>(getDates(null, null, null, null, null, null, null));
       if ("event".equals(q.getFieldName())) return new HashSet<>(getAllEvents(null, null));
       if ("status".equals(q.getFieldName())) return new HashSet<>(getAllStatuses(null, null));
+    } else {
+      if ("ip".equals(q.getFieldName())){
+        if ("user".equals(q.getConditionKey())) return new HashSet<>(getIPsForUser(q.getConditionValue(), null, null));
+        if ("date".equals(q.getConditionKey())) {
+          Date date;
+          try {
+            date = new SimpleDateFormat("d.M.yyyy H:m:s").parse(q.getConditionValue());
+            return new HashSet<>(getUniqueIPs(date, date));
+          } catch (ParseException e) {
+            e.printStackTrace();
+          }
+        }
+        if ("event".equals(q.getConditionKey())) return new HashSet<>(getIPsForEvent(Event.valueOf(q.getConditionValue()), null, null));
+        if ("status".equals(q.getConditionKey())) return new HashSet<>(getIPsForStatus(Status.valueOf(q.getConditionValue()), null, null));
+      }
+      if ("user".equals(q.getFieldName())){
+        if ("ip".equals(q.getConditionKey())) return new HashSet<>(getUsersForIP(q.getConditionValue(), null, null));
+        if ("date".equals(q.getConditionKey())) {
+          Date date;
+          try {
+            date = new SimpleDateFormat("d.M.yyyy H:m:s").parse(q.getConditionValue());
+            return new HashSet<>(getUsers(null, null, null, null, date, date));
+          } catch (ParseException e) {
+            e.printStackTrace();
+          }
+        }
+        if ("event".equals(q.getConditionKey())) return new HashSet<>(getUsers(null, Event.valueOf(q.getConditionValue()), null, null, null, null));
+        if ("status".equals(q.getConditionKey())) return new HashSet<>(getUsers(null, null, Status.valueOf(q.getConditionValue()), null, null, null));
+      }
+      if ("date".equals(q.getFieldName())){
+        if ("ip".equals(q.getConditionKey())) return new HashSet<>(getDates(q.getConditionValue(), null, null, null, null, null, null));
+        if ("user".equals(q.getConditionKey())) return new HashSet<>(getDates(null, q.getConditionValue(), null, null, null, null, null));
+        if ("event".equals(q.getConditionKey())) return new HashSet<>(getDates(null, null, Event.valueOf(q.getConditionValue()), null, null, null, null));
+        if ("status".equals(q.getConditionKey())) return new HashSet<>(getDates(null, null, null, Status.valueOf(q.getConditionValue()), null, null, null));
+      }
+      if ("event".equals(q.getFieldName())){
+        if ("ip".equals(q.getConditionKey())) return new HashSet<>(getEvents(q.getConditionValue(), null, null, null, null, null, null));
+        if ("user".equals(q.getConditionKey())) return new HashSet<>(getEvents(null, q.getConditionValue(), null, null, null, null, null));
+        if ("date".equals(q.getConditionKey())) {
+          Date date;
+          try {
+            date = new SimpleDateFormat("d.M.yyyy H:m:s").parse(q.getConditionValue());
+            return new HashSet<>(getAllEvents(date, date));
+          } catch (ParseException e) {
+            e.printStackTrace();
+          }
+        }
+        if ("status".equals(q.getConditionKey())) return new HashSet<>(getEvents(null, null, null, Status.valueOf(q.getConditionValue()), null, null, null));
+      }
+      if ("status".equals(q.getFieldName())){
+        if ("ip".equals(q.getConditionKey())) return new HashSet<>(getStatuses(q.getConditionValue(), null, null, null, null, null));
+        if ("user".equals(q.getConditionKey())) return new HashSet<>(getStatuses(null, q.getConditionValue(), null, null, null, null));
+        if ("date".equals(q.getConditionKey())) {
+          Date date;
+          try {
+            date = new SimpleDateFormat("d.M.yyyy H:m:s").parse(q.getConditionValue());
+            return new HashSet<>(getAllStatuses(date, date));
+          } catch (ParseException e) {
+            e.printStackTrace();
+          }
+        }
+        if ("event".equals(q.getConditionKey())) return new HashSet<>(getStatuses(null, null, Event.valueOf(q.getConditionValue()), null, null, null));
+      }
     }
     return null;
   }
