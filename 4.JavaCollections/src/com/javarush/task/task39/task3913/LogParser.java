@@ -163,8 +163,11 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
       if (event == logEntry.getEvent() && status == logEntry.getStatus() ||
               (event == logEntry.getEvent() && status == null)) {
         Integer task = logEntry.getTask();
-        if (map.containsKey(task)) { map.put(task, map.get(task) + 1); }
-        else { map.put(task, 1); }
+        if (map.containsKey(task)) {
+          map.put(task, map.get(task) + 1);
+        } else {
+          map.put(task, 1);
+        }
       }
     }
     return map;
@@ -334,23 +337,23 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   @Override
   public int getNumberOfAttemptToSolveTask(int task, Date after, Date before) {
     Integer count = getAllSolvedTasksAndTheirNumber(after, before).get(task);
-    return count == null? 0: count;
+    return count == null ? 0 : count;
   }
   
   @Override
   public int getNumberOfSuccessfulAttemptToSolveTask(int task, Date after, Date before) {
     Integer count = getAllDoneTasksAndTheirNumber(after, before).get(task);
-    return count == null? 0: count;
+    return count == null ? 0 : count;
   }
   
   @Override
   public Map<Integer, Integer> getAllSolvedTasksAndTheirNumber(Date after, Date before) {
-    return getAllTasksAndTheirNumberMap(Event.SOLVE_TASK , null, after, before);
+    return getAllTasksAndTheirNumberMap(Event.SOLVE_TASK, null, after, before);
   }
   
   @Override
   public Map<Integer, Integer> getAllDoneTasksAndTheirNumber(Date after, Date before) {
-    return getAllTasksAndTheirNumberMap(Event.DONE_TASK , null, after, before);
+    return getAllTasksAndTheirNumberMap(Event.DONE_TASK, null, after, before);
   }
   
   @Override
@@ -363,69 +366,115 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
       if ("event".equals(q.getFieldName())) return new HashSet<>(getAllEvents(null, null));
       if ("status".equals(q.getFieldName())) return new HashSet<>(getAllStatuses(null, null));
     } else {
-      if ("ip".equals(q.getFieldName())){
-        if ("user".equals(q.getConditionKey())) return new HashSet<>(getIPsForUser(q.getConditionValue(), null, null));
+      if ("ip".equals(q.getFieldName())) {
+        // System.out.println(q.toString());
+        if ("user".equals(q.getConditionKey()))
+          return new HashSet<>(getIPs(q.getConditionValue(), null, null, q.getConditionStartDate(), q.getConditionEndDate()));
         if ("date".equals(q.getConditionKey())) {
           Date date;
           try {
             date = new SimpleDateFormat("d.M.yyyy H:m:s").parse(q.getConditionValue());
-            return new HashSet<>(getUniqueIPs(date, date));
+            if (q.getConditionStartDate() != null && q.getConditionEndDate() != null &&
+                    date.after(q.getConditionStartDate()) && date.before(q.getConditionEndDate()) ||
+                    (q.getConditionStartDate() == null && q.getConditionEndDate() == null))
+              return new HashSet<>(getUniqueIPs(date, date));
+            else {
+              Set<String> empty = new HashSet<>();
+              return new HashSet<>(empty);
+            }
           } catch (ParseException e) {
             e.printStackTrace();
           }
         }
-        if ("event".equals(q.getConditionKey())) return new HashSet<>(getIPsForEvent(Event.valueOf(q.getConditionValue()), null, null));
-        if ("status".equals(q.getConditionKey())) return new HashSet<>(getIPsForStatus(Status.valueOf(q.getConditionValue()), null, null));
+        if ("event".equals(q.getConditionKey()))
+          return new HashSet<>(getIPs(null, Event.valueOf(q.getConditionValue()), null, q.getConditionStartDate(), q.getConditionEndDate()));
+        if ("status".equals(q.getConditionKey()))
+          return new HashSet<>(getIPs(null, null, Status.valueOf(q.getConditionValue()), q.getConditionStartDate(), q.getConditionEndDate()));
       }
-      if ("user".equals(q.getFieldName())){
-        if ("ip".equals(q.getConditionKey())) return new HashSet<>(getUsersForIP(q.getConditionValue(), null, null));
+      if ("user".equals(q.getFieldName())) {
+        if ("ip".equals(q.getConditionKey()))
+          return new HashSet<>(getUsersForIP(q.getConditionValue(), q.getConditionStartDate(), q.getConditionEndDate()));
         if ("date".equals(q.getConditionKey())) {
           Date date;
           try {
             date = new SimpleDateFormat("d.M.yyyy H:m:s").parse(q.getConditionValue());
-            return new HashSet<>(getUsers(null, null, null, null, date, date));
+            if (q.getConditionStartDate() != null && q.getConditionEndDate() != null &&
+                    date.after(q.getConditionStartDate()) && date.before(q.getConditionEndDate()) ||
+                    (q.getConditionStartDate() == null && q.getConditionEndDate() == null))
+              return new HashSet<>(getUsers(null, null, null, null, date, date));
+            else {
+              Set<String> empty = new HashSet<>();
+              return new HashSet<>(empty);
+            }
           } catch (ParseException e) {
             e.printStackTrace();
           }
         }
-        if ("event".equals(q.getConditionKey())) return new HashSet<>(getUsers(null, Event.valueOf(q.getConditionValue()), null, null, null, null));
-        if ("status".equals(q.getConditionKey())) return new HashSet<>(getUsers(null, null, Status.valueOf(q.getConditionValue()), null, null, null));
+        if ("event".equals(q.getConditionKey()))
+          return new HashSet<>(getUsers(null, Event.valueOf(q.getConditionValue()), null, null, q.getConditionStartDate(), q.getConditionEndDate()));
+        if ("status".equals(q.getConditionKey()))
+          return new HashSet<>(getUsers(null, null, Status.valueOf(q.getConditionValue()), null, q.getConditionStartDate(), q.getConditionEndDate()));
       }
-      if ("date".equals(q.getFieldName())){
-        if ("ip".equals(q.getConditionKey())) return new HashSet<>(getDates(q.getConditionValue(), null, null, null, null, null, null));
-        if ("user".equals(q.getConditionKey())) return new HashSet<>(getDates(null, q.getConditionValue(), null, null, null, null, null));
-        if ("event".equals(q.getConditionKey())) return new HashSet<>(getDates(null, null, Event.valueOf(q.getConditionValue()), null, null, null, null));
-        if ("status".equals(q.getConditionKey())) return new HashSet<>(getDates(null, null, null, Status.valueOf(q.getConditionValue()), null, null, null));
+      if ("date".equals(q.getFieldName())) {
+        if ("ip".equals(q.getConditionKey()))
+          return new HashSet<>(getDates(q.getConditionValue(), null, null, null, null, q.getConditionStartDate(), q.getConditionEndDate()));
+        if ("user".equals(q.getConditionKey()))
+          return new HashSet<>(getDates(null, q.getConditionValue(), null, null, null, q.getConditionStartDate(), q.getConditionEndDate()));
+        if ("event".equals(q.getConditionKey()))
+          return new HashSet<>(getDates(null, null, Event.valueOf(q.getConditionValue()), null, null, q.getConditionStartDate(), q.getConditionEndDate()));
+        if ("status".equals(q.getConditionKey()))
+          return new HashSet<>(getDates(null, null, null, Status.valueOf(q.getConditionValue()), null, q.getConditionStartDate(), q.getConditionEndDate()));
       }
-      if ("event".equals(q.getFieldName())){
-        if ("ip".equals(q.getConditionKey())) return new HashSet<>(getEvents(q.getConditionValue(), null, null, null, null, null, null));
-        if ("user".equals(q.getConditionKey())) return new HashSet<>(getEvents(null, q.getConditionValue(), null, null, null, null, null));
+      if ("event".equals(q.getFieldName())) {
+        if ("ip".equals(q.getConditionKey()))
+          return new HashSet<>(getEvents(q.getConditionValue(), null, null, null, null, q.getConditionStartDate(), q.getConditionEndDate()));
+        if ("user".equals(q.getConditionKey()))
+          return new HashSet<>(getEvents(null, q.getConditionValue(), null, null, null, q.getConditionStartDate(), q.getConditionEndDate()));
         if ("date".equals(q.getConditionKey())) {
           Date date;
           try {
             date = new SimpleDateFormat("d.M.yyyy H:m:s").parse(q.getConditionValue());
-            return new HashSet<>(getAllEvents(date, date));
+            if (q.getConditionStartDate() != null && q.getConditionEndDate() != null &&
+                    date.after(q.getConditionStartDate()) && date.before(q.getConditionEndDate()) ||
+                    (q.getConditionStartDate() == null && q.getConditionEndDate() == null))
+              return new HashSet<>(getAllEvents(date, date));
+            else {
+              Set<Event> empty = new HashSet<>();
+              return new HashSet<>(empty);
+            }
           } catch (ParseException e) {
             e.printStackTrace();
           }
         }
-        if ("status".equals(q.getConditionKey())) return new HashSet<>(getEvents(null, null, null, Status.valueOf(q.getConditionValue()), null, null, null));
+        if ("status".equals(q.getConditionKey()))
+          return new HashSet<>(getEvents(null, null, null, Status.valueOf(q.getConditionValue()), null, q.getConditionStartDate(), q.getConditionEndDate()));
       }
-      if ("status".equals(q.getFieldName())){
-        if ("ip".equals(q.getConditionKey())) return new HashSet<>(getStatuses(q.getConditionValue(), null, null, null, null, null));
-        if ("user".equals(q.getConditionKey())) return new HashSet<>(getStatuses(null, q.getConditionValue(), null, null, null, null));
+      if ("status".equals(q.getFieldName())) {
+        if ("ip".equals(q.getConditionKey()))
+          return new HashSet<>(getStatuses(q.getConditionValue(), null, null, null, q.getConditionStartDate(), q.getConditionEndDate()));
+        if ("user".equals(q.getConditionKey()))
+          return new HashSet<>(getStatuses(null, q.getConditionValue(), null, null, q.getConditionStartDate(), q.getConditionEndDate()));
         if ("date".equals(q.getConditionKey())) {
           Date date;
           try {
             date = new SimpleDateFormat("d.M.yyyy H:m:s").parse(q.getConditionValue());
-            return new HashSet<>(getAllStatuses(date, date));
+            if (q.getConditionStartDate() != null && q.getConditionEndDate() != null &&
+                    date.after(q.getConditionStartDate()) && date.before(q.getConditionEndDate()) ||
+                    (q.getConditionStartDate() == null && q.getConditionEndDate() == null))
+              return new HashSet<>(getStatuses(null, null, null, null, date, date) );
+            else {
+              Set<Status> empty = new HashSet<>();
+              return new HashSet<>(empty);
+            }
           } catch (ParseException e) {
             e.printStackTrace();
           }
         }
-        if ("event".equals(q.getConditionKey())) return new HashSet<>(getStatuses(null, null, Event.valueOf(q.getConditionValue()), null, null, null));
+        if ("event".equals(q.getConditionKey()))
+          return new HashSet<>(getStatuses(null, null, Event.valueOf(q.getConditionValue()), null, q.getConditionStartDate(), q.getConditionEndDate()));
       }
     }
+    
     return null;
   }
 }

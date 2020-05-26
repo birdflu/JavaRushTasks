@@ -262,9 +262,33 @@ public class Testing {
 //    множество уникальных IP адресов, у которых событие равно [any_event].
     assertArrayEquals(sort(logParser.execute("get ip for event = \"SOLVE_TASK\"").toArray()),
             new String[]{"12.12.12.12", "120.120.120.122", "192.168.100.2"});
-  
+
+//    Вызов метода execute с параметром "get ip for user = "[any_user]" and date between "[after]" and "[before]""
+//    должен возвращать множество уникальных IP адресов, с которых работал пользователь с именем [any_user]
+//    в период между датами [after] и [before].
+    assertArrayEquals(sort(logParser.execute("get ip for user = \"Eduard Petrovich Morozko\" and date between \"11.12.2013 0:00:00\" and \"03.01.2014 23:59:59\".").toArray()),
+            new String[]{"127.0.0.1", "146.34.15.5"});
+    
+
+//    Вызов метода execute с параметром "get ip for event = "[any_event]" and date between "[after]" and "[before]""
+//    должен возвращать множество уникальных IP адресов, у которых событие равно [any_event] в период между датами [after] и [before].
+    assertArrayEquals(sort(logParser.execute("get ip for event = \"SOLVE_TASK\" and date between \"30.01.2014 12:56:22\" and \"21.10.2021 19:45:25\"").toArray()),
+            new String[]{"192.168.100.2"});
+
+
+//    Вызов метода execute с параметром "get ip for date = "[any_date]" and date between "[after]" and "[before]""
+//    должен возвращать множество уникальных IP адресов, события с которых произведены в указанное время [any_date] в период между датами [after] и [before].
+    assertArrayEquals(sort(logParser.execute("get ip for date = \"19.03.2016 00:00:00\" and date between \"30.01.2014 12:56:22\" and \"21.10.2021 19:45:25\"").toArray()),
+            new String[]{"192.168.100.2"});
+    assert(logParser.execute("get ip for date = \"30.01.2014 12:56:22\" and date between \"30.01.2014 12:56:22\" and \"21.10.2021 19:45:25\"").size()  == 0);
+    assert(logParser.execute("get ip for date = \"30.01.2014 12:56:22\" and date between \"30.08.2012 16:08:13\" and \"13.09.2013 5:04:50\"").size()  == 0);
+    
+//    Вызов метода execute с параметром "get user for event = "[any_event]" and date between "[after]" and "[before]""
+//    должен возвращать множество уникальных пользователей, у которых событие равно [any_event] в период между датами [after] и [before].
+    assertArrayEquals(sort(logParser.execute("get user for event = \"SOLVE_TASK\" and date between \"30.01.2014 12:56:22\" and \"21.10.2021 19:45:25\"").toArray()),
+            new String[]{"Vasya Pupkin"});
+    
   }
-  
   private Object[] sort(Object[] array) {
     Arrays.sort(array);
     return array;
