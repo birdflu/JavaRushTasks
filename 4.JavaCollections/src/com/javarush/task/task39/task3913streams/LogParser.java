@@ -2,14 +2,16 @@ package com.javarush.task.task39.task3913streams;
 
 import com.javarush.task.task39.task3913streams.query.*;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQuery {
   private final Path logDir;
@@ -17,45 +19,36 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   
   public LogParser(Path logDir) {
     this.logDir = logDir;
-    try {
-      loadData();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    loadData();
   }
   
   private List<File> listFilesForFolder(final File folder) {
-    List<File> pathList = new ArrayList<>();
-    for (final File fileEntry : folder.listFiles()) {
-      if (fileEntry.isDirectory()) {
-        listFilesForFolder(fileEntry);
-      } else {
-        if (".log".equals(getExtension(fileEntry)))
-          pathList.add(fileEntry);
-      }
-    }
-    return pathList;
+    return Arrays.stream(folder.listFiles())
+            .filter(file -> ".log".equals(getExtension(file)))
+            .collect(Collectors.toList());
   }
   
   private String getExtension(File fileEntry) {
     return fileEntry.getName().substring(fileEntry.getName().length() - 4);
   }
   
-  private void loadData() throws IOException {
-    for (File file : listFilesForFolder(logDir.toFile())) {
-      List<LogEntry> entries = getEntries(file);
-      this.logEntries.addAll(entries);
-    }
+  private void loadData() {
+    this.logEntries.addAll(
+            listFilesForFolder(logDir.toFile())
+                    .stream()
+                    .map(this::getEntries)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList())
+    );
   }
   
-  private List<LogEntry> getEntries(File file) throws IOException {
-    List<LogEntry> logEntries = new ArrayList<>();
-    BufferedReader fileReader = new BufferedReader(new FileReader(file));
-    while (fileReader.ready()) {
-      LogEntry logEntry = new LogEntry(fileReader.readLine());
-      logEntries.add(logEntry);
+  private List<LogEntry> getEntries(File file) {
+    try (Stream<String> stream = Files.lines(Paths.get(file.getPath()))) {
+      return stream.map(LogEntry::new).collect(Collectors.toList());
+    } catch (IOException e) {
+      e.printStackTrace();
+      return new ArrayList<>();
     }
-    return logEntries;
   }
   
   private List<LogEntry> getEntries(Date after, Date before) {
@@ -461,7 +454,7 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
             if (q.getConditionStartDate() != null && q.getConditionEndDate() != null &&
                     date.after(q.getConditionStartDate()) && date.before(q.getConditionEndDate()) ||
                     (q.getConditionStartDate() == null && q.getConditionEndDate() == null))
-              return new HashSet<>(getStatuses(null, null, null, null, date, date) );
+              return new HashSet<>(getStatuses(null, null, null, null, date, date));
             else {
               Set<Status> empty = new HashSet<>();
               return new HashSet<>(empty);

@@ -87,7 +87,6 @@ public class Query {
     return new SimpleDateFormat("d.M.yyyy H:m:s").parse(query.substring(from, to));
   }
   
-  
   public String getFieldName() {
     return fieldName;
   }
