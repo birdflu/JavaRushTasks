@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQuery {
   private final Path logDir;
-  private List<LogEntry> logEntries = new ArrayList<>();
+  private final List<LogEntry> logEntries = new ArrayList<>();
   
   public LogParser(Path logDir) {
     this.logDir = logDir;
@@ -21,7 +21,7 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   }
   
   private List<File> listFilesForFolder(final File folder) {
-    return Arrays.stream(folder.listFiles())
+    return Arrays.stream(Objects.requireNonNull(folder.listFiles()))
             .filter(file -> ".log".equals(getExtension(file)))
             .collect(Collectors.toList());
   }
@@ -42,7 +42,9 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   
   private List<LogEntry> getEntries(File file) {
     try (Stream<String> stream = Files.lines(Paths.get(file.getPath()))) {
-      return stream.map(LogEntry::new).collect(Collectors.toList());
+      return stream
+              .map(LogEntry::new)
+              .collect(Collectors.toList());
     } catch (IOException e) {
       e.printStackTrace();
       return new ArrayList<>();
@@ -50,23 +52,16 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   }
   
   private List<LogEntry> getEntries(Date after, Date before) {
-    if (after == null) after = new Date(0L);
-    if (before == null) before = new Date(Long.MAX_VALUE);
+    return  this.logEntries.stream()
+            .filter(e -> e.getDate().compareTo(after == null ? new Date(0L) : after) >= 0
+                    && e.getDate().compareTo(before == null ? new Date(Long.MAX_VALUE) : before) <= 0)
+            .collect(Collectors.toList());
     
-    List<LogEntry> entries = new ArrayList<>();
-    for (LogEntry logEntry : this.logEntries) {
-      if (logEntry.getDate().compareTo(after) >= 0 && logEntry.getDate().compareTo(before) <= 0) {
-        entries.add(logEntry);
-      }
-    }
-    return entries;
   }
   
   private Set<String> getUsers(String ip, Event event, Status status, Integer task, Date after, Date before) {
-    String user = null;
     return getEntries(after, before).stream()
             .filter(e -> ip != null && ip.equals(e.getIp()) ||
-                    user != null && user.equals(e.getUser()) ||
                     event != null && task == null && event.equals(e.getEvent()) ||
                     task != null && task.equals(e.getTask()) ||
                     status != null && status.equals(e.getStatus()) ||
@@ -76,32 +71,24 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   }
   
   private Set<Date> getDates(String ip, String user, Event event, Status status, Integer task, Date after, Date before) {
-    Set<Date> uniqueDates = new HashSet<>();
-    for (LogEntry logEntry : getEntries(after, before)) {
-      if ((ip != null && ip.equals(logEntry.getIp())) ||
-              user != null && ip == null && event == null && task == null && user.equals(logEntry.getUser()) ||
-              (user != null && event != null && task == null && user.equals(logEntry.getUser()) && event == logEntry.getEvent()) ||
-              (user != null && event != null && task != null &&
-                      user.equals(logEntry.getUser()) && event == logEntry.getEvent() && task.equals(logEntry.getTask())) ||
-              (user != null && status != null && user.equals(logEntry.getUser()) && status == logEntry.getStatus()) ||
-              (ip == null && user == null && status != null && event == null && status == logEntry.getStatus()) ||
-              (ip == null && user == null && status == null && event != null && event == logEntry.getEvent()) ||
-              (ip == null && user == null && event == null && status == null && task == null)) {
-        uniqueDates.add(logEntry.getDate());
-      }
-    }
-    return uniqueDates;
+    return getEntries(after, before).stream()
+            .filter(e -> ip != null && ip.equals(e.getIp()) ||
+                    user != null && ip == null && event == null && task == null && user.equals(e.getUser()) ||
+                    (user != null && event != null && task == null && user.equals(e.getUser()) && event == e.getEvent()) ||
+                    (user != null && event != null && task != null &&
+                            user.equals(e.getUser()) && event == e.getEvent() && task.equals(e.getTask())) ||
+                    (user != null && status != null && user.equals(e.getUser()) && status == e.getStatus()) ||
+                    (ip == null && user == null && status != null && event == null && status == e.getStatus()) ||
+                    (ip == null && user == null && status == null && event != null && event == e.getEvent()) ||
+                    (ip == null && user == null && event == null && status == null && task == null))
+            .map(LogEntry::getDate).collect(Collectors.toSet());
   }
   
   private Date getFirstDate(String user, Event event, Integer task, Date after, Date before) {
-    Set<Date> dates = getDates(null, user, event, null, task, after, before);
-    if (dates.size() == 0) return null;
-    else {
-      List<Date> result = new ArrayList();
-      result.addAll(dates);
-      Collections.sort(result);
-      return result.get(0);
-    }
+    return getDates(null, user, event, null, task, after, before).stream()
+            .sorted()
+            .findFirst().orElse(null);
+    
   }
   
   public Set<Event> getEvents(String ip, String user, Event event, Status status, Integer task, Date after, Date before) {
@@ -117,18 +104,9 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   }
   
   private Map<Integer, Integer> getAllTasksAndTheirNumberMap(Event event, Date after, Date before) {
-    Map<Integer, Integer> map = new HashMap<>();
-    for (LogEntry logEntry : getEntries(after, before)) {
-      if (event == logEntry.getEvent()) {
-        Integer task = logEntry.getTask();
-        if (map.containsKey(task)) {
-          map.put(task, map.get(task) + 1);
-        } else {
-          map.put(task, 1);
-        }
-      }
-    }
-    return map;
+    return getEntries(after, before).stream()
+            .filter(e -> event.equals(e.getEvent()))
+            .collect(Collectors.groupingBy(LogEntry::getTask, Collectors.reducing(0, e -> 1, Integer::sum)));
   }
   
   @Override
@@ -179,13 +157,11 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   
   @Override
   public int getNumberOfUserEvents(String user, Date after, Date before) {
-    Set<Event> uniqueEvents = new HashSet<>();
-    for (LogEntry logEntry : getEntries(after, before)) {
-      if (user != null && user.equals(logEntry.getUser())) {
-        uniqueEvents.add(logEntry.getEvent());
-      }
-    }
-    return uniqueEvents.size();
+    return (int) getEntries(after, before).stream()
+            .filter(e -> user != null && user.equals(e.getUser()))
+            .map(LogEntry::getEvent)
+            .distinct()
+            .count();
   }
   
   @Override
