@@ -354,137 +354,14 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
     Date startDate = q.getConditionStartDate();
     Date endDate = q.getConditionEndDate();
     
-    if (conditionKey == null) {
-      if ("ip".equals(fieldName)) {
-        return new HashSet<>(getEntries(null, null).stream()
-              .map(LogEntry::getIp)
-              .collect(Collectors.toSet()));
-      }
-      if ("user".equals(fieldName)) {
-        return new HashSet<>(getEntries(null, null).stream()
-              .map(LogEntry::getUser)
-              .collect(Collectors.toSet()));
-      }
-      if ("date".equals(fieldName)) return new HashSet<>(getEntries(null, null).stream()
-              .map(LogEntry::getDate)
-              .collect(Collectors.toSet()));
-      if ("event".equals(fieldName)) {
-        return new HashSet<>(getEntries(null, null).stream()
-                .map(LogEntry::getEvent)
-                .collect(Collectors.toSet()));
-      }
-      if ("status".equals(fieldName)) return new HashSet<>(getEntries(null, null).stream()
-              .map(LogEntry::getStatus)
-              .collect(Collectors.toSet()));
-    } else {
-      if ("ip".equals(fieldName)) {
-        if ("user".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> conditionValue.equals(e.getUser()))
-                  .map(LogEntry::getIp)
-                  .collect(Collectors.toSet()));
-        if ("date".equals(conditionKey))
-          return new HashSet<>(getEntries(q.getConditionValueAsDate(), q.getConditionValueAsDate()).stream()
-                    .filter(e -> startDate != null && endDate != null &&
-                            q.getConditionValueAsDate().after(startDate) && q.getConditionValueAsDate().before(endDate) ||
-                            (startDate == null && endDate == null))
-                    .map(LogEntry::getIp)
-                    .collect(Collectors.toSet()));
-        if ("event".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> Event.valueOf(conditionValue).equals(e.getEvent()))
-                  .map(LogEntry::getIp)
-                  .collect(Collectors.toSet()));
-        if ("status".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> Status.valueOf(conditionValue).equals(e.getEvent()))
-                  .map(LogEntry::getIp)
-                  .collect(Collectors.toSet()));
-      }
-      if ("user".equals(fieldName)) {
-        if ("ip".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> conditionValue.equals(e.getIp()))
-                  .map(LogEntry::getUser)
-                  .collect(Collectors.toSet()));
-        if ("date".equals(conditionKey))
-          return new HashSet<>(getEntries(q.getConditionValueAsDate(), q.getConditionValueAsDate()).stream()
-                  .filter(e -> startDate != null && endDate != null &&
-                          q.getConditionValueAsDate().after(startDate) && q.getConditionValueAsDate().before(endDate) ||
-                          (startDate == null && endDate == null))
-                  .map(LogEntry::getUser)
-                  .collect(Collectors.toSet()));
-        if ("event".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> Event.valueOf(conditionValue).equals(e.getEvent()))
-                  .map(LogEntry::getUser)
-                  .collect(Collectors.toSet()));
-        if ("status".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> Status.valueOf(conditionValue).equals(e.getStatus()))
-                  .map(LogEntry::getUser)
-                  .collect(Collectors.toSet()));
-      }
-//      if ("date".equals(q.getFieldName())) {
-//        if ("ip".equals(conditionKey))
-//          return new HashSet<>(getDates(conditionValue, null, null, null, null, startDate, endDate));
-//        if ("user".equals(conditionKey))
-//          return new HashSet<>(getDates(null, conditionValue, null, null, null, startDate, endDate));
-//        if ("event".equals(conditionKey))
-//          return new HashSet<>(getDates(null, null, Event.valueOf(conditionValue), null, null, startDate, endDate));
-//        if ("status".equals(conditionKey))
-//          return new HashSet<>(getDates(null, null, null, Status.valueOf(conditionValue), null, startDate, endDate));
-//      }
-      if ("event".equals(fieldName)) {
-        if ("ip".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> conditionValue.equals(e.getIp()))
-                  .map(LogEntry::getEvent)
-                  .collect(Collectors.toSet()));
-        if ("user".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> conditionValue.equals(e.getUser()))
-                  .map(LogEntry::getEvent)
-                  .collect(Collectors.toSet()));
-        if ("date".equals(conditionKey))
-          return new HashSet<>(getEntries(q.getConditionValueAsDate(), q.getConditionValueAsDate()).stream()
-                  .filter(e -> startDate != null && endDate != null &&
-                          q.getConditionValueAsDate().after(startDate) && q.getConditionValueAsDate().before(endDate) ||
-                          (startDate == null && endDate == null))
-                  .map(LogEntry::getEvent)
-                  .collect(Collectors.toSet()));
-        if ("status".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> Status.valueOf(conditionValue).equals(e.getStatus()))
-                  .map(LogEntry::getEvent)
-                  .collect(Collectors.toSet()));
-      }
-      if ("status".equals(fieldName)) {
-        if ("ip".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> conditionValue.equals(e.getIp()))
-                  .map(LogEntry::getStatus)
-                  .collect(Collectors.toSet()));
-        if ("user".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> conditionValue.equals(e.getUser()))
-                  .map(LogEntry::getStatus)
-                  .collect(Collectors.toSet()));
-        if ("date".equals(conditionKey))
-          return new HashSet<>(getEntries(q.getConditionValueAsDate(), q.getConditionValueAsDate()).stream()
-                  .filter(e -> startDate != null && endDate != null &&
-                          q.getConditionValueAsDate().after(startDate) && q.getConditionValueAsDate().before(endDate) ||
-                          (startDate == null && endDate == null))
-                  .map(LogEntry::getStatus)
-                  .collect(Collectors.toSet()));
-        if ("event".equals(conditionKey))
-          return new HashSet<>(getEntries(startDate, endDate).stream()
-                  .filter(e -> Event.valueOf(conditionValue).equals(e.getEvent()))
-                  .map(LogEntry::getStatus)
-                  .collect(Collectors.toSet()));
-      }
-    }
-    
-    return null;
+ 
+    return getEntries(startDate, endDate).stream()
+            .filter(e -> "ip".equals(conditionKey) && conditionValue.equals(e.getIp()) ||
+                    "user".equals(conditionKey) && conditionValue.equals(e.getUser()) ||
+                    "date".equals(conditionKey) && q.getConditionValueAsDate().equals(e.getDate()) ||
+                    "event".equals(conditionKey) && Event.valueOf(conditionValue).equals(e.getEvent()) ||
+                    "status".equals(conditionKey) && Status.valueOf(conditionValue).equals(e.getStatus()) ||
+                    conditionKey == null)
+            .map(logEntry -> logEntry.getObject(fieldName)).collect(Collectors.toSet());
   }
 }

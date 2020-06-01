@@ -107,6 +107,15 @@ public class LogEntry {
     return task;
   }
   
+  public Object getObject(String objectName) {
+    if ("ip".equals(objectName)) return getIp();
+    if ("user".equals(objectName)) return getUser();
+    if ("date".equals(objectName)) return getDate();
+    if ("event".equals(objectName)) return getEvent();
+    if ("status".equals(objectName)) return getStatus();
+    return null;
+  }
+  
   @Override
   public String toString() {
     return "LogEntry{" +
