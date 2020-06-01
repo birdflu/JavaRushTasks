@@ -59,25 +59,20 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
         entries.add(logEntry);
       }
     }
-    
     return entries;
   }
   
   private Set<String> getUsers(String ip, Event event, Status status, Integer task, Date after, Date before) {
-    Set<String> uniqueUsers = new HashSet<>();
-    for (LogEntry logEntry : getEntries(after, before)) {
-      if ((ip != null && ip.equals(logEntry.getIp())) ||
-              (event != null && task == null && event == logEntry.getEvent()) ||
-              (event != null && task != null && status != null && event == logEntry.getEvent()
-                      && task.equals(logEntry.getTask()) && status.equals(logEntry.getStatus())) ||
-              (event != null && task != null && status == null && event == logEntry.getEvent()
-                      && task.equals(logEntry.getTask())) ||
-              (status != null && status == logEntry.getStatus()) ||
-              (ip == null && event == null && status == null && task == null)) {
-        uniqueUsers.add(logEntry.getUser());
-      }
-    }
-    return uniqueUsers;
+    String user = null;
+    return getEntries(after, before).stream()
+            .filter(e -> ip != null && ip.equals(e.getIp()) ||
+                    user != null && user.equals(e.getUser()) ||
+                    event != null && task == null && event.equals(e.getEvent()) ||
+                    task != null && task.equals(e.getTask()) ||
+                    status != null && status.equals(e.getStatus()) ||
+                    (ip == null && event == null && status == null && task == null)
+            )
+            .map(LogEntry::getUser).collect(Collectors.toSet());
   }
   
   private Set<Date> getDates(String ip, String user, Event event, Status status, Integer task, Date after, Date before) {
@@ -110,36 +105,21 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   }
   
   public Set<Event> getEvents(String ip, String user, Event event, Status status, Integer task, Date after, Date before) {
-    Set<Event> uniqueEvents = new HashSet<>();
-    for (LogEntry logEntry : getEntries(after, before)) {
-      if ((ip != null && ip.equals(logEntry.getIp())) ||
-              (user != null && user.equals(logEntry.getUser())) ||
-              (status != null && status == logEntry.getStatus()) ||
-              (ip == null && user == null && event == null && status == null && task == null)) {
-        uniqueEvents.add(logEntry.getEvent());
-      }
-    }
-    return uniqueEvents;
+    return getEntries(after, before).stream()
+            .filter(e -> ip != null && ip.equals(e.getIp()) ||
+                    user != null && user.equals(e.getUser()) ||
+                    event != null && task == null && event.equals(e.getEvent()) ||
+                    task != null && task.equals(e.getTask()) ||
+                    status != null && status.equals(e.getStatus()) ||
+                    (ip == null && event == null && status == null && task == null)
+            )
+            .map(LogEntry::getEvent).collect(Collectors.toSet());
   }
   
-  public Set<Status> getStatuses(String ip, String user, Event event, Integer task, Date after, Date before) {
-    Set<Status> uniqueStatuses = new HashSet<>();
-    for (LogEntry logEntry : getEntries(after, before)) {
-      if ((ip != null && ip.equals(logEntry.getIp())) ||
-              (user != null && user.equals(logEntry.getUser())) ||
-              (event != null && event == logEntry.getEvent()) ||
-              (ip == null && user == null && event == null && task == null)) {
-        uniqueStatuses.add(logEntry.getStatus());
-      }
-    }
-    return uniqueStatuses;
-  }
-  
-  private Map<Integer, Integer> getAllTasksAndTheirNumberMap(Event event, Status status, Date after, Date before) {
+  private Map<Integer, Integer> getAllTasksAndTheirNumberMap(Event event, Date after, Date before) {
     Map<Integer, Integer> map = new HashMap<>();
     for (LogEntry logEntry : getEntries(after, before)) {
-      if (event == logEntry.getEvent() && status == logEntry.getStatus() ||
-              (event == logEntry.getEvent() && status == null)) {
+      if (event == logEntry.getEvent()) {
         Integer task = logEntry.getTask();
         if (map.containsKey(task)) {
           map.put(task, map.get(task) + 1);
@@ -149,10 +129,6 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
       }
     }
     return map;
-  }
-  
-  public Set<Status> getAllStatuses(Date after, Date before) {
-    return getStatuses(null, null, null, null, after, before);
   }
   
   @Override
@@ -337,31 +313,24 @@ public class LogParser implements IPQuery, UserQuery, DateQuery, EventQuery, QLQ
   
   @Override
   public Map<Integer, Integer> getAllSolvedTasksAndTheirNumber(Date after, Date before) {
-    return getAllTasksAndTheirNumberMap(Event.SOLVE_TASK, null, after, before);
+    return getAllTasksAndTheirNumberMap(Event.SOLVE_TASK, after, before);
   }
   
   @Override
   public Map<Integer, Integer> getAllDoneTasksAndTheirNumber(Date after, Date before) {
-    return getAllTasksAndTheirNumberMap(Event.DONE_TASK, null, after, before);
+    return getAllTasksAndTheirNumberMap(Event.DONE_TASK, after, before);
   }
   
   @Override
   public Set<Object> execute(String query) {
     Query q = new Query(query);
-    String fieldName = q.getFieldName();
-    String conditionKey = q.getConditionKey();
-    String conditionValue = q.getConditionValue();
-    Date startDate = q.getConditionStartDate();
-    Date endDate = q.getConditionEndDate();
-    
- 
-    return getEntries(startDate, endDate).stream()
-            .filter(e -> "ip".equals(conditionKey) && conditionValue.equals(e.getIp()) ||
-                    "user".equals(conditionKey) && conditionValue.equals(e.getUser()) ||
-                    "date".equals(conditionKey) && q.getConditionValueAsDate().equals(e.getDate()) ||
-                    "event".equals(conditionKey) && Event.valueOf(conditionValue).equals(e.getEvent()) ||
-                    "status".equals(conditionKey) && Status.valueOf(conditionValue).equals(e.getStatus()) ||
-                    conditionKey == null)
-            .map(logEntry -> logEntry.getObject(fieldName)).collect(Collectors.toSet());
+    return getEntries(q.getConditionStartDate(), q.getConditionEndDate()).stream()
+            .filter(e -> "ip".equals(q.getConditionKey()) && q.getConditionValue().equals(e.getIp()) ||
+                    "user".equals(q.getConditionKey()) && q.getConditionValue().equals(e.getUser()) ||
+                    "date".equals(q.getConditionKey()) && q.getConditionValueAsDate().equals(e.getDate()) ||
+                    "event".equals(q.getConditionKey()) && Event.valueOf(q.getConditionValue()).equals(e.getEvent()) ||
+                    "status".equals(q.getConditionKey()) && Status.valueOf(q.getConditionValue()).equals(e.getStatus()) ||
+                    q.getConditionKey() == null)
+            .map(logEntry -> logEntry.getObject(q.getFieldName())).collect(Collectors.toSet());
   }
 }
