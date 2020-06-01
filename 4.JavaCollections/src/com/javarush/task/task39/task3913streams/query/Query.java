@@ -99,6 +99,16 @@ public class Query {
     return conditionValue;
   }
   
+  public Date getConditionValueAsDate() {
+    Date date = null;
+    try {
+      date = new SimpleDateFormat("d.M.yyyy H:m:s").parse(conditionValue);
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    return date;
+  }
+  
   public Date getConditionStartDate() {
     return conditionStartDate;
   }
