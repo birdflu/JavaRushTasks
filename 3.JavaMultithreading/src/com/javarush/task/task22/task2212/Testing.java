@@ -1,6 +1,6 @@
 package com.javarush.task.task22.task2212;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 public class Testing {
   @Test
