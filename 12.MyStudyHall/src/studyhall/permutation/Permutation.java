@@ -2,13 +2,14 @@ package studyhall.permutation;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Permutation {
-    List storage = Stream.of("A", "B", "C").collect(Collectors.toList());
-
+    List storage1 = Stream.of("A", "B", "C").collect(Collectors.toList());
+    List storage2 = Stream.iterate(1, n -> n + 1).limit(9).collect(Collectors.toList());
     public static void main(String[] args) {
         Permutation p = new Permutation();
 //        #lang = scheme
@@ -25,8 +26,18 @@ public class Permutation {
 //        (permutation  '(((2) (1 3)))) =>    (((2) (1 3)) ((2 1) (3)) ((2 3) (1)) ((2 1 3) ()) ((2 3 1) ()))
 
 //        (getPermutations '(1 2))      =>    (() (1) (2) (1 2) (2 1))
-//        (getPermutations '(1 2 3))    =>    (() (1) (2) (3) (1 2) (1 3) (2 1) (2 3) (3 1) (3 2) (1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
-        System.out.printf("getPermutations(%s)=%s", p.storage, p.getPermutations(p.storage));
+//        (getPermutations '(1 2 3))    =>    
+//        (() (1) (2) (3) (1 2) (1 3) (2 1) (2 3) (3 1) (3 2) (1 2 3) (1 3 2) (2 1 3) (2 3 1) (3 1 2) (3 2 1))
+
+        System.out.printf("getPermutations(%s)=%s\n", p.storage1, p.getPermutations(p.storage1));
+        Date start = new Date();
+        System.out.println("p.getPermutations(p.storage).size() = " + p.getPermutations(p.storage2).size());
+        Date end = new Date();
+        System.out.println(start);
+        System.out.println(start.getTime());
+        System.out.println(end);
+        System.out.println(end.getTime());
+        System.out.println((int)((end.getTime() - start.getTime())/1000));
     }
 
     // (perm  '(2) '(1 3) '(1 3))
