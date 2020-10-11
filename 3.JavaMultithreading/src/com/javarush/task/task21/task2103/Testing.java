@@ -1,8 +1,7 @@
 package com.javarush.task.task21.task2103;
 
-import org.junit.Test;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotEquals;
+
+import org.testng.annotations.Test;
 
 public class Testing {
   @Test
