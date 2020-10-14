@@ -1,4 +1,4 @@
-package studyhall.permutation;
+package studyhall.math.combinatorics.permutation;
 
 import java.util.ArrayList;
 import java.util.Collections;

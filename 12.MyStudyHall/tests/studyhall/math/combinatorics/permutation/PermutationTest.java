@@ -1,4 +1,4 @@
-package studyhall.permutation;
+package studyhall.math.combinatorics.permutation;
 
 import org.junit.jupiter.api.Test;
 
