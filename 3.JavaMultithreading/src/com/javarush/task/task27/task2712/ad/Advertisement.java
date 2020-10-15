@@ -44,14 +44,15 @@ public class Advertisement {
 
   /**  Стоимость {@code getPricePerSecond} показа одной секунды рекламного ролика в тысячных частях копейки
    */
-  public long getPricePerSecond() { return (getAmountPerOneDisplaying()/duration)*1000; };
+  public long getPricePerSecond() { return (getAmountPerOneDisplaying()*1000/duration); };
 
   @Override
   public String toString() {
     return "{" +
             "\'" + name + '\'' +
-            ", d=" + duration/60 +
+            ", d=" + duration +
             ", a=" + amountPerOneDisplaying +
+            ", pps=" + getPricePerSecond() +
             '}';
   }
 

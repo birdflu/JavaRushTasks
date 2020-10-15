@@ -38,9 +38,13 @@ public class AdvertisementManager {
     //    где 50 - стоимость показа одного рекламного ролика в копейках
     //    где 277 - стоимость показа одной секунды рекламного ролика в тысячных частях копейки (равно 0.277 коп)
     //  Используйте методы из класса Advertisement.
-    List list = getList(storage.list());
+    List<Advertisement> list = getList(storage.list());
     Collections.sort(list, new AdvertisementComparator());
-    list.stream().forEach(System.out::println);
+    for (Advertisement a : list) {
+      System.out.printf("%s is displaying... %d, %d\n", a.getName(), a.getAmountPerOneDisplaying(), a.getPricePerSecond());
+      a.revalidate();
+    }
+
 
   }
 
@@ -57,14 +61,12 @@ public class AdvertisementManager {
     List<List<Advertisement>> result = combination.getCombinations(storage.list());
     result = result.subList(1, result.size());
 
-    System.out.println("result.size() = " + result.size());
     Stream s = result.stream().map(
             l -> new ArrayList() {{
               add(l.stream().reduce((v1, v2) -> v1.amount(v2)).orElse(getEmptyAdvertisement()));
               add(l);
                }})
             .filter(items -> getAmountAdvertisement(items).getDuration() <= timeSeconds);
-    //s.forEach(System.out::println);
     List<List<Advertisement>> advertisements = (List<List<Advertisement>>) s.max(new AdvertisementSetComparator()).orElse(getEmptyAdvertisement());
 
     return advertisements.get(1);
