@@ -1,6 +1,5 @@
 package com.javarush.task.task27.task2712.kitchen;
 
-import com.javarush.task.task27.task2712.ConsoleHelper;
 import com.javarush.task.task27.task2712.Tablet;
 
 import java.io.IOException;
@@ -12,7 +11,13 @@ public class Order {
   
   public Order(Tablet tablet) throws IOException {
     this.tablet = tablet;
-    dishes = ConsoleHelper.getAllDishesForOrder();
+    //dishes = ConsoleHelper.getAllDishesForOrder();
+
+//    dishes = List.of(Dish.Soup);                          // order 1, duration 2: {v1, v2}
+//    dishes = List.of(Dish.Soup, Dish.Steak);              // order 2, duration 3: {v8}
+    dishes = List.of(Dish.Water, Dish.Juice, Dish.Fish);  // order 3, duration 8: {v1, v2, v7, v8}
+
+
   }
   
   public int getTotalCookingTime() {
@@ -29,6 +34,5 @@ public class Order {
             Dish.dishesString(this.dishes) +
             "] of " + tablet.toString();
   }
-  
-  
+
 }

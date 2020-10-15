@@ -1,8 +1,12 @@
 package com.javarush.task.task27.task2712.ad;
 
 import com.javarush.task.task27.task2712.Tablet;
+import com.javarush.task.task27.task2712.combination.Combination;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class AdvertisementManager {
   private final AdvertisementStorage storage = AdvertisementStorage.getInstance();
@@ -16,12 +20,18 @@ public class AdvertisementManager {
   public void processVideos() {
     // 2.2. Подобрать список видео из доступных, просмотр которых обеспечивает максимальную выгоду.
     // (Пока делать не нужно, сделаем позже).
-    
     // 2.3. Если нет рекламных видео, которые можно показать посетителю, то бросить NoVideoAvailableException,
     // которое перехватить в оптимальном месте (подумать, где это место)
     // и с уровнем Level.INFO логировать фразу "No video is available for the order " + order
     if (storage.list().isEmpty()){
       throw new NoVideoAvailableException();
+    }
+
+    List list = getList(storage.list());
+    for (Object  o : list) {
+      Advertisement advertisement = (Advertisement) o;
+      System.out.println(advertisement.getName());
+      advertisement.revalidate();
     }
     // 2.4. Отобразить все рекламные ролики, отобранные для показа, в порядке уменьшения стоимости показа
     // одного рекламного ролика в копейках. Вторичная сортировка - по увеличению стоимости показа
@@ -34,4 +44,43 @@ public class AdvertisementManager {
     //    где 277 - стоимость показа одной секунды рекламного ролика в тысячных частях копейки (равно 0.277 коп)
     //  Используйте методы из класса Advertisement.
   }
+
+  private List getList(List list) {
+
+//    1. сумма денег, полученная от показов, должна быть максимальной из всех возможных вариантов
+//    2. общее время показа рекламных роликов НЕ должно превышать время приготовления блюд для текущего заказа;
+//    3. для одного заказа любой видео-ролик показывается не более одного раза;
+//    4. если существует несколько вариантов набора видео-роликов с одинаковой суммой денег, полученной от показов, то:
+//    4.1. выбрать тот вариант, у которого суммарное время максимальное;
+//    4.2. если суммарное время у этих вариантов одинаковое, то выбрать вариант с минимальным количеством роликов;
+//    5. количество показов у любого рекламного ролика из набора - положительное число.
+    Combination combination = new Combination();
+    List<List<Advertisement>> result = combination.getCombinations(storage.list());
+    result = result.subList(1, result.size());
+
+    System.out.println("result.size() = " + result.size());
+    Stream s = result.stream().map(
+            l -> new ArrayList() {{
+              add(l.stream().reduce((v1, v2) -> v1.amount(v2)).orElse(getEmptyAdvertisement()));
+              add(l);
+               }})
+            .filter(items -> getAmountAdvertisement(items).getDuration() <= timeSeconds);
+
+//    s.forEach(System.out::println);
+    System.out.println("s.max = " + s.max(new AdvertisementComparator()).toString());
+
+//    for (List<Advertisement> l: result) {
+//        System.out.println(l.toString());
+//    }
+    return list;
+  }
+
+  private Advertisement getEmptyAdvertisement() {
+    return new Advertisement(null, "", 0, 1, 0);
+  }
+
+  private Advertisement getAmountAdvertisement(List l) {
+    return ((Advertisement) l.get(0));
+  }
+
 }
