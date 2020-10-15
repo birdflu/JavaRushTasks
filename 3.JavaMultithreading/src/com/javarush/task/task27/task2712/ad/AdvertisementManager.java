@@ -4,6 +4,7 @@ import com.javarush.task.task27.task2712.Tablet;
 import com.javarush.task.task27.task2712.combination.Combination;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -27,12 +28,6 @@ public class AdvertisementManager {
       throw new NoVideoAvailableException();
     }
 
-    List list = getList(storage.list());
-    for (Object  o : list) {
-      Advertisement advertisement = (Advertisement) o;
-      System.out.println(advertisement.getName());
-      advertisement.revalidate();
-    }
     // 2.4. Отобразить все рекламные ролики, отобранные для показа, в порядке уменьшения стоимости показа
     // одного рекламного ролика в копейках. Вторичная сортировка - по увеличению стоимости показа
     // одной секунды рекламного ролика в тысячных частях копейки.
@@ -43,9 +38,13 @@ public class AdvertisementManager {
     //    где 50 - стоимость показа одного рекламного ролика в копейках
     //    где 277 - стоимость показа одной секунды рекламного ролика в тысячных частях копейки (равно 0.277 коп)
     //  Используйте методы из класса Advertisement.
+    List list = getList(storage.list());
+    Collections.sort(list, new AdvertisementComparator());
+    list.stream().forEach(System.out::println);
+
   }
 
-  private List getList(List list) {
+  private List<Advertisement> getList(List list) {
 
 //    1. сумма денег, полученная от показов, должна быть максимальной из всех возможных вариантов
 //    2. общее время показа рекламных роликов НЕ должно превышать время приготовления блюд для текущего заказа;
@@ -65,14 +64,10 @@ public class AdvertisementManager {
               add(l);
                }})
             .filter(items -> getAmountAdvertisement(items).getDuration() <= timeSeconds);
+    //s.forEach(System.out::println);
+    List<List<Advertisement>> advertisements = (List<List<Advertisement>>) s.max(new AdvertisementSetComparator()).orElse(getEmptyAdvertisement());
 
-//    s.forEach(System.out::println);
-    System.out.println("s.max = " + s.max(new AdvertisementComparator()).toString());
-
-//    for (List<Advertisement> l: result) {
-//        System.out.println(l.toString());
-//    }
-    return list;
+    return advertisements.get(1);
   }
 
   private Advertisement getEmptyAdvertisement() {

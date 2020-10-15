@@ -17,18 +17,6 @@ public class Advertisement {
     this.amountPerOneDisplaying = this.initialAmount / this.hits;
   }
 
-  public String getName() {
-    return name;
-  }
-  
-  public int getDuration() {
-    return duration;
-  }
-
-  public long getAmountPerOneDisplaying() {
-    return amountPerOneDisplaying;
-  }
-  
   public void revalidate() {
     if (hits > 0) hits--;
     else throw new UnsupportedOperationException();
@@ -41,6 +29,22 @@ public class Advertisement {
             , this.hits * a.hits
             , this.duration + a.duration);
   }
+
+  public String getName() {
+    return name;
+  }
+  
+  public int getDuration() {
+    return duration;
+  }
+
+  public long getAmountPerOneDisplaying() {
+    return amountPerOneDisplaying;
+  }
+
+  /**  Стоимость {@code getPricePerSecond} показа одной секунды рекламного ролика в тысячных частях копейки
+   */
+  public long getPricePerSecond() { return (getAmountPerOneDisplaying()/duration)*1000; };
 
   @Override
   public String toString() {
