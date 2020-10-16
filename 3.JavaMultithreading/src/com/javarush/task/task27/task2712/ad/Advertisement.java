@@ -14,7 +14,7 @@ public class Advertisement {
     this.initialAmount = initialAmount;
     this.hits = hits;
     this.duration = duration;
-    this.amountPerOneDisplaying = this.initialAmount / this.hits;
+    amountPerOneDisplaying = hits > 0 ? initialAmount / hits : 0;
   }
 
   public void revalidate() {
@@ -42,6 +42,10 @@ public class Advertisement {
     return amountPerOneDisplaying;
   }
 
+  public int getHits() {
+    return hits;
+  }
+
   /**  Стоимость {@code getPricePerSecond} показа одной секунды рекламного ролика в тысячных частях копейки
    */
   public long getPricePerSecond() { return (getAmountPerOneDisplaying()*1000/duration); };
@@ -53,14 +57,8 @@ public class Advertisement {
             ", d=" + duration +
             ", a=" + amountPerOneDisplaying +
             ", pps=" + getPricePerSecond() +
+            ", hits+" + hits +
             '}';
   }
-
-
-
-
-
-
-
 }
 

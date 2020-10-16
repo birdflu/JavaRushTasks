@@ -38,8 +38,8 @@ public class Combination {
         if (second.isEmpty()) {
             return second;
         } else {
-            List head = new ArrayList<>() {{
-                add(new ArrayList<>() {{
+            List head = new ArrayList() {{
+                add(new ArrayList() {{
                     addAll(first);
                     add(second.get(0));
 

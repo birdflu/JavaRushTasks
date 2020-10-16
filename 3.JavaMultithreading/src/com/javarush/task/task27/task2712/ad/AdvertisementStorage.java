@@ -9,14 +9,14 @@ public class AdvertisementStorage {
   
   private AdvertisementStorage() {
     Object someContent = new Object();
-    this.add(new Advertisement(someContent, "First Video", 3, 3, 1 * 60)); // | 1 | 1 | 1 | 1 |
+    this.add(new Advertisement(someContent, "First Video", 3, 3, 1 * 60));  // | 1 | 1 | 1 | 1 |
     this.add(new Advertisement(someContent, "Second Video", 6, 3, 1 * 60)); // | 2 |
-    this.add(new Advertisement(someContent, "Third Video", 3, 3, 2 * 60));// |   1   |
-    this.add(new Advertisement(someContent, "Forth Video", 6, 3, 2 * 60)); // |   2   |
-    this.add(new Advertisement(someContent, "Fifth Video", 3, 3, 3 * 60)); // |     1     |
-    this.add(new Advertisement(someContent, "Sixth Video", 6, 3, 3 * 60)); // |     2     |
-    this.add(new Advertisement(someContent, "Seventh Video", 9, 3, 3 * 60)); // |     3     |
-    this.add(new Advertisement(someContent, "Eighth Video", 12, 3, 3 * 60)); //|     4     |
+    this.add(new Advertisement(someContent, "Third Video", 3, 3, 2 * 60));  // |   1   |
+    this.add(new Advertisement(someContent, "Forth Video", 6, 3, 2 * 60));  // |   2   |
+    this.add(new Advertisement(someContent, "Fifth Video", 3, 3, 3 * 60));  // |     1     |
+    this.add(new Advertisement(someContent, "Sixth Video", 6, 3, 3 * 60));  // |     2     |
+    this.add(new Advertisement(someContent, "Seventh Video", 9, 3, 3 * 60));// |     3     |
+    this.add(new Advertisement(someContent, "Eighth Video", 12, 3, 3 * 60));// |     4     |
 
 //  check "Вторичная сортировка - по увеличению стоимости показа одной секунды рекламного ролика"
 //  need set order.timeSeconds to longer
