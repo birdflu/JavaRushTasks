@@ -1,17 +1,16 @@
 package com.javarush.task.task27.task2712.statistic;
 
 import com.javarush.task.task27.task2712.ad.Advertisement;
+import com.javarush.task.task27.task2712.kitchen.Cook;
 import com.javarush.task.task27.task2712.kitchen.Dish;
 import com.javarush.task.task27.task2712.statistic.event.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StatisticManager {
   private static StatisticManager instance;
   private StatisticStorage statisticStorage = new StatisticStorage();
+  private Set<Cook> cooks = new HashSet();
 
   private StatisticManager() {
 
@@ -26,51 +25,55 @@ public class StatisticManager {
       //    dishes = List.of(Dish.Water, Dish.Juice, Dish.Fish);  // order 3, duration 8: {v1, v2, v7, v8}
       for (EventType eventType: EventType.values()) {storage.put(eventType,new ArrayList<EventDataRow>());}
 
-//      List<Dish> dishes1 = new ArrayList() {{
-//        add(Dish.Soup);
-//      }};
-//      List<Dish> dishes2 = new ArrayList() {{
-//        add(Dish.Soup);
-//        add(Dish.Steak);
-//      }};
-//      List<Dish> dishes3 = new ArrayList() {{
-//        add(Dish.Water);
-//        add(Dish.Juice);
-//        add(Dish.Fish);
-//      }};
-//
-//      storage.put(EventType.COOKED_ORDER, new ArrayList() {{
-//        add(new CookedOrderEventDataRow("tablet1", "cook1", getTotalCookingTime(dishes1), dishes1));
-//        add(new CookedOrderEventDataRow("tablet2", "cook2", getTotalCookingTime(dishes2), dishes2));
-//      }});
-//
-//      storage.put(EventType.COOKED_ORDER, new ArrayList() {{
-//        add(new CookedOrderEventDataRow("tablet3", "cook3", getTotalCookingTime(dishes3), dishes3));
-//      }});
-//
-//      storage.put(EventType.COOKED_ORDER, new ArrayList() {{
-//        add(new CookedOrderEventDataRow("tablet1", "cook2", getTotalCookingTime(dishes1), dishes1));
-//        add(new CookedOrderEventDataRow("tablet3", "cook2", getTotalCookingTime(dishes2), dishes2));
-//      }});
-//
-//      storage.put(EventType.SELECTED_VIDEOS, new ArrayList() {{
-//        add(new VideoSelectedEventDataRow(getVideos().subList(0, 1), 9, 2 * 60));
-//      }});
-//
-//      storage.put(EventType.SELECTED_VIDEOS, new ArrayList() {{
-//        add(new VideoSelectedEventDataRow(getVideos().subList(7, 7), 12, 3 * 60));
-//      }});
-//
-//      storage.put(EventType.SELECTED_VIDEOS, new ArrayList() {{
-//        List list = getVideos().subList(0, 1);
-//        list.addAll(getVideos().subList(6, 7));
-//        add(new VideoSelectedEventDataRow(list, 30, 8 * 60));
-//      }});
-//
-//      storage.put(EventType.NO_AVAILABLE_VIDEO, new ArrayList() {{
-//        add(new NoAvailableVideoEventDataRow(1 * 60));
-//        add(new NoAvailableVideoEventDataRow(3 * 60));
-//      }});
+      //initStorage();
+    }
+
+    private void initStorage() {
+      List<Dish> dishes1 = new ArrayList() {{
+        add(Dish.Soup);
+      }};
+      List<Dish> dishes2 = new ArrayList() {{
+        add(Dish.Soup);
+        add(Dish.Steak);
+      }};
+      List<Dish> dishes3 = new ArrayList() {{
+        add(Dish.Water);
+        add(Dish.Juice);
+        add(Dish.Fish);
+      }};
+
+      storage.put(EventType.COOKED_ORDER, new ArrayList() {{
+        add(new CookedOrderEventDataRow("tablet1", "cook1", getTotalCookingTime(dishes1), dishes1));
+        add(new CookedOrderEventDataRow("tablet2", "cook2", getTotalCookingTime(dishes2), dishes2));
+      }});
+
+      storage.put(EventType.COOKED_ORDER, new ArrayList() {{
+        add(new CookedOrderEventDataRow("tablet3", "cook3", getTotalCookingTime(dishes3), dishes3));
+      }});
+
+      storage.put(EventType.COOKED_ORDER, new ArrayList() {{
+        add(new CookedOrderEventDataRow("tablet1", "cook2", getTotalCookingTime(dishes1), dishes1));
+        add(new CookedOrderEventDataRow("tablet3", "cook2", getTotalCookingTime(dishes2), dishes2));
+      }});
+
+      storage.put(EventType.SELECTED_VIDEOS, new ArrayList() {{
+        add(new VideoSelectedEventDataRow(getVideos().subList(0, 1), 9, 2 * 60));
+      }});
+
+      storage.put(EventType.SELECTED_VIDEOS, new ArrayList() {{
+        add(new VideoSelectedEventDataRow(getVideos().subList(7, 7), 12, 3 * 60));
+      }});
+
+      storage.put(EventType.SELECTED_VIDEOS, new ArrayList() {{
+        List list = getVideos().subList(0, 1);
+        list.addAll(getVideos().subList(6, 7));
+        add(new VideoSelectedEventDataRow(list, 30, 8 * 60));
+      }});
+
+      storage.put(EventType.NO_AVAILABLE_VIDEO, new ArrayList() {{
+        add(new NoAvailableVideoEventDataRow(1 * 60));
+        add(new NoAvailableVideoEventDataRow(3 * 60));
+      }});
     }
 
     private List getVideos() {
@@ -98,13 +101,17 @@ public class StatisticManager {
       instance = new StatisticManager();
     return instance;
   }
-// 6. Метод register класса StatisticManager с одним параметром типа EventDataRow должен регистрировать полученное событие в statisticStorage.
+
   public void register(EventDataRow data) {
     getInstance().statisticStorage.put(data);
   }
 
   public static int getTotalCookingTime(List<Dish> dishes) {
     return dishes.stream().map(Dish::getDuration).reduce(Integer::sum).orElse(0);
+  }
+
+  public void register(Cook cook) {
+    cooks.add(cook);
   }
 
 }
