@@ -6,6 +6,7 @@ import com.javarush.task.task27.task2712.kitchen.Dish;
 import com.javarush.task.task27.task2712.statistic.event.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class StatisticManager {
   private static StatisticManager instance;
@@ -16,16 +17,22 @@ public class StatisticManager {
 
   }
 
-  private static class StatisticStorage {
+  public static StatisticManager getInstance() {
+    if (instance == null)
+      instance = new StatisticManager();
+    return instance;
+  }
+
+  private class StatisticStorage {
     private Map<EventType, List<EventDataRow>> storage = new HashMap<>();
 
-    {
-      //    dishes = List.of(Dish.Soup);                          // order 1, duration 2: {v1, v2}
-      //    dishes = List.of(Dish.Soup, Dish.Steak);              // order 2, duration 3: {v8}
-      //    dishes = List.of(Dish.Water, Dish.Juice, Dish.Fish);  // order 3, duration 8: {v1, v2, v7, v8}
-      for (EventType eventType: EventType.values()) {storage.put(eventType,new ArrayList<EventDataRow>());}
-
-      //initStorage();
+    public StatisticStorage() {
+      storage = new HashMap<>();
+//      initStorage();
+      for (EventType eventType :
+              EventType.values()) {
+        storage.put(eventType, new ArrayList<EventDataRow>());
+      }
     }
 
     private void initStorage() {
@@ -45,26 +52,18 @@ public class StatisticManager {
       storage.put(EventType.COOKED_ORDER, new ArrayList() {{
         add(new CookedOrderEventDataRow("tablet1", "cook1", getTotalCookingTime(dishes1), dishes1));
         add(new CookedOrderEventDataRow("tablet2", "cook2", getTotalCookingTime(dishes2), dishes2));
-      }});
-
-      storage.put(EventType.COOKED_ORDER, new ArrayList() {{
         add(new CookedOrderEventDataRow("tablet3", "cook3", getTotalCookingTime(dishes3), dishes3));
-      }});
-
-      storage.put(EventType.COOKED_ORDER, new ArrayList() {{
         add(new CookedOrderEventDataRow("tablet1", "cook2", getTotalCookingTime(dishes1), dishes1));
         add(new CookedOrderEventDataRow("tablet3", "cook2", getTotalCookingTime(dishes2), dishes2));
+        add(new CookedOrderEventDataRow("tablet2", "cook2", getTotalCookingTime(dishes3), dishes2));
+        add(new CookedOrderEventDataRow("tablet3", "cook3", getTotalCookingTime(dishes3), dishes3));
+        add(new CookedOrderEventDataRow("tablet1", "cook1", getTotalCookingTime(dishes2), dishes2));
+        add(new CookedOrderEventDataRow("tablet3", "cook2", getTotalCookingTime(dishes1), dishes1));
       }});
 
       storage.put(EventType.SELECTED_VIDEOS, new ArrayList() {{
         add(new VideoSelectedEventDataRow(getVideos().subList(0, 1), 9, 2 * 60));
-      }});
-
-      storage.put(EventType.SELECTED_VIDEOS, new ArrayList() {{
         add(new VideoSelectedEventDataRow(getVideos().subList(7, 7), 12, 3 * 60));
-      }});
-
-      storage.put(EventType.SELECTED_VIDEOS, new ArrayList() {{
         List list = getVideos().subList(0, 1);
         list.addAll(getVideos().subList(6, 7));
         add(new VideoSelectedEventDataRow(list, 30, 8 * 60));
@@ -94,12 +93,9 @@ public class StatisticManager {
       storage.get(data.getType()).add(data);
     }
 
-  }
-
-  public static StatisticManager getInstance() {
-    if (instance == null)
-      instance = new StatisticManager();
-    return instance;
+    private Map<EventType, List<EventDataRow>> getStorage() {
+      return storage;
+    }
   }
 
   public void register(EventDataRow data) {
@@ -112,6 +108,37 @@ public class StatisticManager {
 
   public void register(Cook cook) {
     cooks.add(cook);
+  }
+
+  public Map<Date, Long> advertisementProfit() {
+    Set<Map.Entry<EventType, List<EventDataRow>>> entries =
+            getStatisticEntries(new ArrayList() {{
+              add(EventType.SELECTED_VIDEOS);
+            }});
+    return entries.stream()
+            .flatMap(e -> e.getValue().stream())
+            .map(e -> ((VideoSelectedEventDataRow) e))
+            .collect(Collectors.groupingBy(VideoSelectedEventDataRow::getDateWithoutTime,
+                    Collectors.summingLong(VideoSelectedEventDataRow::getAmount)));
+  }
+
+  public Map<Date, Map<String, Integer>> cookWorkloading() {
+    Set<Map.Entry<EventType, List<EventDataRow>>> entries =
+            getStatisticEntries(new ArrayList() {{
+              add(EventType.COOKED_ORDER);
+            }});
+    return entries.stream()
+            .flatMap(e -> e.getValue().stream())
+            .map(e -> ((CookedOrderEventDataRow) e))
+            .collect(Collectors.groupingBy(CookedOrderEventDataRow::getDateWithoutTime,
+                    Collectors.groupingBy(CookedOrderEventDataRow::getCookName,
+                            Collectors.summingInt(CookedOrderEventDataRow::getTime))));
+  }
+
+
+  private Set<Map.Entry<EventType, List<EventDataRow>>> getStatisticEntries(List<EventType> eventTypes) {
+    return statisticStorage.getStorage().entrySet().stream()
+            .filter(e -> eventTypes.contains(e.getKey())).collect(Collectors.toSet());
   }
 
 }

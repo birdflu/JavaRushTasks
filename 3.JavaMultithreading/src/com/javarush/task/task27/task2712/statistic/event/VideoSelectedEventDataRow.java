@@ -2,6 +2,7 @@ package com.javarush.task.task27.task2712.statistic.event;
 
 import com.javarush.task.task27.task2712.ad.Advertisement;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -16,9 +17,7 @@ public class VideoSelectedEventDataRow implements EventDataRow {
     this.amount = amount;
     this.totalDuration = totalDuration;
     this.currentDate = new Date();
-//    System.out.println("optimalVideoSet = " + optimalVideoSet);
-//    System.out.println("amount = " + amount);
-//    System.out.println("totalDuration = " + totalDuration);
+//    this.currentDate.setTime(1421212929223L + (1_000_000_00L)*totalDuration/150);
   }
 
   @Override
@@ -35,5 +34,21 @@ public class VideoSelectedEventDataRow implements EventDataRow {
   @Override
   public int getTime() {
     return totalDuration;
+  }
+
+  public Date getDateWithoutTime() {
+    Calendar cal = Calendar.getInstance(); // locale-specific
+    cal.setTime(currentDate);
+    cal.set(Calendar.HOUR, 0);
+    cal.set(Calendar.HOUR_OF_DAY, 0);
+    cal.set(Calendar.AM_PM, 0);
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+    return new Date(cal.getTimeInMillis());
+  }
+
+  public long getAmount() {
+    return amount;
   }
 }
