@@ -10,36 +10,41 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Tablet extends Observable {
-  private final int number;
-  private static Logger logger = Logger.getLogger(Tablet.class.getName());
-  
+  public final int number;
+  public static Logger logger = Logger.getLogger(Tablet.class.getName());
+
   public Tablet(int number) {
     this.number = number;
   }
-  
-  public Order createOrder() {
-    Order order = null;
-    try {
+
+  public Order createOrder(){
+    Order order;
+    try
+    {
       order = new Order(this);
-      if (! order.isEmpty()) {
-        ConsoleHelper.writeMessage(order.toString());
-        this.setChanged();
-        this.notifyObservers(order);
-        AdvertisementManager advertisementManager = new AdvertisementManager(order.getTotalCookingTime()*60);
-        advertisementManager.processVideos();
+      ConsoleHelper.writeMessage(order.toString());
+      setChanged();
+      notifyObservers(order);
+
+      try
+      {
+        new AdvertisementManager(1200).processVideos();
       }
+      catch (NoVideoAvailableException e)
+      {
+        logger.log(Level.INFO, "No video is available for the order " + order);
+      }
+
     } catch (IOException e) {
       logger.log(Level.SEVERE, "Console is unavailable.");
-    } catch (NoVideoAvailableException e) {
-      logger.log(Level.INFO, "No video is available for the order " + order);
+      return null;
     }
     return order;
   }
-  
+
   @Override
-  public String toString() {
-    return "Tablet{" +
-            "number=" + number +
-            '}';
+  public String toString()
+  {
+    return "Tablet{number=" + number + "}";
   }
 }

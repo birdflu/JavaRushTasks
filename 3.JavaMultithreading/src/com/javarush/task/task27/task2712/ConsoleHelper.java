@@ -9,31 +9,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConsoleHelper {
-  private static final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-  
-  public static void writeMessage(String message) {
+  private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+  public static void writeMessage(String message){
     System.out.println(message);
   }
-  
+
   public static String readString() throws IOException {
     return reader.readLine();
   }
-  
-  public static List<Dish> getAllDishesForOrder() throws IOException {
-    List<Dish> order = new ArrayList<>();
-    writeMessage("Menu: " + Dish.allDishesToString() + ".");
-    writeMessage("Enter the dish name or 'exit' to complete:");
-    String line = readString();
-    while (!line.equals("exit")) {
-      try { order.add(Dish.valueOf(line)); }
-      catch (IllegalArgumentException e){
-        writeMessage("The dish doesn't exist! Enter an existing meal or 'exit', please:");
-      }
-      line = readString();
-    }
-    reader.close();
-    return order;
-  }
-  
 
+  public static List<Dish> getAllDishesForOrder() throws IOException {
+    List<Dish> listDish = new ArrayList<>();
+    writeMessage("Menu (finish by 'exit'): " + Dish.allDishesToString() + ".");
+    while (true){
+      String str = readString();
+      if(str.equalsIgnoreCase("exit"))
+        break;
+      else {
+        try {
+          listDish.add(Dish.valueOf(str));
+        }catch (IllegalArgumentException e){
+          writeMessage("The dish doesn't exist!");
+        }
+      }
+    }
+
+    return listDish;
+  }
 }

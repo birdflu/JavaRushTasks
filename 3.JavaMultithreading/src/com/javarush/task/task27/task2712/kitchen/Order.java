@@ -36,4 +36,11 @@ public class Order {
             "] of " + tablet.toString();
   }
 
+  public List<Dish> getDishes() {
+    return dishes;
+  }
+
+  public Tablet getTablet() {
+    return tablet;
+  }
 }

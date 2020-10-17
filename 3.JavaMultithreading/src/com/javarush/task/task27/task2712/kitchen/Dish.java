@@ -5,17 +5,17 @@ import java.util.List;
 import java.util.StringJoiner;
 
 public enum Dish {
-//  Fish(25),
-//  Steak(30),
-//  Soup(15),
-//  Juice(5),
-//  Water(3);
+  Fish(25),
+  Steak(30),
+  Soup(15),
+  Juice(5),
+  Water(3);
 
-  Fish(1),
-  Steak(1),
-  Soup(2),
-  Juice(3),
-  Water(4);
+//  Fish(1),
+//  Steak(1),
+//  Soup(2),
+//  Juice(3),
+//  Water(4);
   
   private int duration;
   

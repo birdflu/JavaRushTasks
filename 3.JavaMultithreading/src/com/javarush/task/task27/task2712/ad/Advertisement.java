@@ -8,18 +8,18 @@ public class Advertisement {
   private int duration; // продолжительность в секундах
   private long amountPerOneDisplaying; // стоимость одного показа рекламного объявления в копейках
   
-  public Advertisement(Object content, String name, long initialAmount, int hits, int duration) {
+  public Advertisement(Object content, String name, long initialAmount, int hits, int duration) throws NoVideoAvailableException{
     this.content = content;
     this.name = name;
     this.initialAmount = initialAmount;
     this.hits = hits;
     this.duration = duration;
-    amountPerOneDisplaying = hits > 0 ? initialAmount / hits : 0;
+    this.amountPerOneDisplaying = hits > 0 ? initialAmount / hits : 0;
   }
 
   public void revalidate() {
     if (hits > 0) hits--;
-    else throw new UnsupportedOperationException();
+    else throw new NoVideoAvailableException();
   }
 
   public Advertisement amount (Advertisement a) {

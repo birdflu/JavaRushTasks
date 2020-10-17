@@ -2,6 +2,8 @@ package com.javarush.task.task27.task2712.ad;
 
 import com.javarush.task.task27.task2712.Tablet;
 import com.javarush.task.task27.task2712.combination.Combination;
+import com.javarush.task.task27.task2712.statistic.StatisticManager;
+import com.javarush.task.task27.task2712.statistic.event.VideoSelectedEventDataRow;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,12 +21,13 @@ public class AdvertisementManager {
         this.timeSeconds = timeSeconds;
     }
 
-    public void processVideos() {
+    public void processVideos() throws NoVideoAvailableException {
         // 2.2. Подобрать список видео из доступных, просмотр которых обеспечивает максимальную выгоду.
         // (Пока делать не нужно, сделаем позже).
         // 2.3. Если нет рекламных видео, которые можно показать посетителю, то бросить NoVideoAvailableException,
         // которое перехватить в оптимальном месте (подумать, где это место)
         // и с уровнем Level.INFO логировать фразу "No video is available for the order " + order
+
         if (storage.list().isEmpty()) {
             throw new NoVideoAvailableException();
         }
@@ -40,12 +43,25 @@ public class AdvertisementManager {
         //    где 277 - стоимость показа одной секунды рекламного ролика в тысячных частях копейки (равно 0.277 коп)
         //  Используйте методы из класса Advertisement.
         List<Advertisement> list = getList(storage.list());
+        long amount = list.stream().map(Advertisement::getAmountPerOneDisplaying).reduce(Long::sum).orElse(0L);
+
+        if (list == null || list.isEmpty()) {
+            throw new NoVideoAvailableException();
+        }
+
+        int totalDuration = list.stream().map(Advertisement::getDuration).reduce(Integer::sum).orElse(0);
         Collections.sort(list, new AdvertisementComparator());
+
+        StatisticManager.getInstance().register(new VideoSelectedEventDataRow(list, amount, totalDuration));
         for (Advertisement a : list) {
             System.out.printf("%s is displaying... %d, %d\n", a.getName(), a.getAmountPerOneDisplaying(), a.getPricePerSecond());
             a.revalidate();
         }
     }
+
+//    public List<Advertisement> getList() {
+//        return getList(storage.list());
+//    }
 
     private List<Advertisement> getList(List list) {
 //    1. сумма денег, полученная от показов, должна быть максимальной из всех возможных вариантов
