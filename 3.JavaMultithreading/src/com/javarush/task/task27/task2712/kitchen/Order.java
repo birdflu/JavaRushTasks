@@ -12,7 +12,7 @@ public class Order {
   
   public Order(Tablet tablet) throws IOException {
     this.tablet = tablet;
-    dishes = ConsoleHelper.getAllDishesForOrder();
+    this.initDishes();
 
 //    dishes = List.of(Dish.Soup);                          // order 1, duration 2: {v1, v2}
 //    dishes = List.of(Dish.Soup, Dish.Steak);              // order 2, duration 3: {v8}
@@ -34,6 +34,10 @@ public class Order {
     return "Your order: [" +
             Dish.dishesString(this.dishes) +
             "] of " + tablet.toString();
+  }
+
+  protected void initDishes() throws IOException{
+    dishes = ConsoleHelper.getAllDishesForOrder();
   }
 
   public List<Dish> getDishes() {
