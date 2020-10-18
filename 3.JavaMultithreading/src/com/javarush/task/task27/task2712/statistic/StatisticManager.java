@@ -141,4 +141,7 @@ public class StatisticManager {
             .filter(e -> eventTypes.contains(e.getKey())).collect(Collectors.toSet());
   }
 
+  public Set<Cook> getCooks() {
+    return cooks;
+  }
 }

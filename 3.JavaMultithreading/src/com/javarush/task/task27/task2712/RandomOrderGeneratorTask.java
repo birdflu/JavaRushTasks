@@ -1,28 +1,31 @@
 package com.javarush.task.task27.task2712;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
 
 public class RandomOrderGeneratorTask implements Runnable {
   private List<Tablet> tablets;
-  private int ORDER_CREATING_INTERVAL;
+  private int interval;
 
-  public RandomOrderGeneratorTask(List<Tablet> tablets, int ORDER_CREATING_INTERVAL) {
+  public RandomOrderGeneratorTask(List<Tablet> tablets, int interval) {
     this.tablets = tablets;
-    this.ORDER_CREATING_INTERVAL = ORDER_CREATING_INTERVAL;
+    this.interval = interval;
   }
 
   @Override
   public void run() {
-    while (!Thread.currentThread().isInterrupted()) {
-      try {
+    try {
+      while (!Thread.currentThread().isInterrupted()) {
         if (tablets.size() > 0) {
-          tablets.get((int)(Math.random() * tablets.size())).createTestOrder();
+          tablets.get(ThreadLocalRandom.current().nextInt(tablets.size())).createTestOrder();
         }
         else {
           break;
         }
-        Thread.sleep(ORDER_CREATING_INTERVAL);
-      } catch (InterruptedException e) { return;}
-    }
+        Thread.sleep(interval);
+      }
+    } catch (InterruptedException e) { return;}
+
   }
 }
