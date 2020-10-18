@@ -14,6 +14,8 @@ public class Restaurant {
     Cook cook1 = new Cook("Amigo1");
     Cook cook2 = new Cook("Amigo2");
 
+    OrderManager orderManager = new OrderManager();
+
     StatisticManager.getInstance().register(cook1);
     StatisticManager.getInstance().register(cook2);
 
@@ -24,12 +26,9 @@ public class Restaurant {
 
     List<Tablet> tablets = new ArrayList<>();
     for (int i = 0; i < 5; i++) {
-      tablets.add(new Tablet(i));
-    }
-
-    for (int i = 0; i < 5; i++) {
-      tablets.get(i).addObserver(cook1);
-      tablets.get(i).addObserver(cook2);
+      Tablet tablet = new Tablet(i);
+      tablet.addObserver(orderManager);
+      tablets.add(tablet);
     }
 
     Thread thread = new Thread(new RandomOrderGeneratorTask(tablets, ORDER_CREATING_INTERVAL));
