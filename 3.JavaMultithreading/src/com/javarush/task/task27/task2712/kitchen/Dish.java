@@ -11,12 +11,6 @@ public enum Dish {
   Juice(5),
   Water(3);
 
-//  Fish(1),
-//  Steak(1),
-//  Soup(2),
-//  Juice(3),
-//  Water(4);
-  
   private int duration;
   
   public int getDuration() {

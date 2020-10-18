@@ -3,6 +3,7 @@ package com.javarush.task.task27.task2712.ad;
 import com.javarush.task.task27.task2712.Tablet;
 import com.javarush.task.task27.task2712.combination.Combination;
 import com.javarush.task.task27.task2712.statistic.StatisticManager;
+import com.javarush.task.task27.task2712.statistic.event.NoAvailableVideoEventDataRow;
 import com.javarush.task.task27.task2712.statistic.event.VideoSelectedEventDataRow;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class AdvertisementManager {
         // и с уровнем Level.INFO логировать фразу "No video is available for the order " + order
 
         if (storage.list().isEmpty()) {
+            StatisticManager.getInstance().register(new NoAvailableVideoEventDataRow(timeSeconds));
             throw new NoVideoAvailableException();
         }
 
@@ -46,6 +48,7 @@ public class AdvertisementManager {
         long amount = list.stream().map(Advertisement::getAmountPerOneDisplaying).reduce(Long::sum).orElse(0L);
 
         if (list == null || list.isEmpty()) {
+            StatisticManager.getInstance().register(new NoAvailableVideoEventDataRow(timeSeconds));
             throw new NoVideoAvailableException();
         }
 

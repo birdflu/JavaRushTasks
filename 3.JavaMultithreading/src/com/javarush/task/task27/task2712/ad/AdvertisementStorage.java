@@ -9,9 +9,9 @@ public class AdvertisementStorage {
   
   private AdvertisementStorage() {
     Object someContent = new Object();
-    add(new Advertisement(someContent, "First Video", 5000, 100, 3 * 60));
-    add(new Advertisement(someContent, "Second Video", 100, 10, 15 * 60));
-    add(new Advertisement(someContent, "Third Video", 400, 2, 10 * 60));
+    add(new Advertisement(someContent, "First Video", 5000, 100, 3 * 60)); // 3 min
+    add(new Advertisement(someContent, "Second Video", 100, 10, 15 * 60)); //15 min
+    add(new Advertisement(someContent, "Third Video", 400, 2, 10 * 60)); //10 min
     //    Object someContent = new Object();
 //    this.add(new Advertisement(someContent, "First Video", 3, 3, 1 * 60));  // | 1 | 1 | 1 | 1 |
 //    this.add(new Advertisement(someContent, "Second Video", 6, 3, 1 * 60)); // | 2 |

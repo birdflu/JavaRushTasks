@@ -28,7 +28,7 @@ public class Tablet extends Observable {
 
       try
       {
-        new AdvertisementManager(1200).processVideos();
+        new AdvertisementManager(order.getTotalCookingTime() * 60).processVideos();
       }
       catch (NoVideoAvailableException e)
       {
