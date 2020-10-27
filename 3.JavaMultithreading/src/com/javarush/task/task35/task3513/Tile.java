@@ -9,6 +9,10 @@ public class Tile {
     this.value = value;
   }
 
+  public void setValue(int value) {
+    this.value = value;
+  }
+
   public Tile() {
     this.value = 0;
   }
