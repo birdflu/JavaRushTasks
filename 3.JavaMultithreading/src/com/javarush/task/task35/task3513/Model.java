@@ -81,6 +81,16 @@ public class Model {
     return result;
   }
 
+  private void rotateClockwise() {
+    Tile[][] gameTilesRotate = new Tile[FIELD_WIDTH][FIELD_WIDTH];
+    for (int i = 0; i < FIELD_WIDTH; i++){
+      for (int j = 0; j < FIELD_WIDTH; j++){
+        gameTilesRotate[i][j] = gameTiles[FIELD_WIDTH- j - 1][i];
+      }
+    }
+    gameTiles = gameTilesRotate;
+  }
+
   protected void left() {
     boolean isAddTile = false;
     for (int i = 0; i < gameTiles.length; i++) {
@@ -91,6 +101,29 @@ public class Model {
     if (isAddTile) addTile();
   }
 
+  protected void down() {
+    rotateClockwise();
+    left();
+    rotateClockwise();
+    rotateClockwise();
+    rotateClockwise();
+  }
+
+  protected void up() {
+    rotateClockwise();
+    rotateClockwise();
+    rotateClockwise();
+    left();
+    rotateClockwise();
+  }
+
+  protected void right() {
+    rotateClockwise();
+    rotateClockwise();
+    left();
+    rotateClockwise();
+    rotateClockwise();
+  }
 
   @Override
   public String toString() {
