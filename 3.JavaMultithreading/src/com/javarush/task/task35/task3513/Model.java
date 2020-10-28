@@ -2,6 +2,7 @@ package com.javarush.task.task35.task3513;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -10,6 +11,9 @@ public class Model {
   private Tile[][] gameTiles;
   protected int score = 0;
   protected int maxTile = 0;
+  private Stack<Tile[][]> previousStates = new Stack();
+  private Stack<Integer> previousScores = new Stack();
+  private boolean isSaveNeeded = true;
 
   public Model() {
     resetGameTiles();
@@ -83,9 +87,9 @@ public class Model {
 
   private void rotateClockwise() {
     Tile[][] gameTilesRotate = new Tile[FIELD_WIDTH][FIELD_WIDTH];
-    for (int i = 0; i < FIELD_WIDTH; i++){
-      for (int j = 0; j < FIELD_WIDTH; j++){
-        gameTilesRotate[i][j] = gameTiles[FIELD_WIDTH- j - 1][i];
+    for (int i = 0; i < FIELD_WIDTH; i++) {
+      for (int j = 0; j < FIELD_WIDTH; j++) {
+        gameTilesRotate[i][j] = gameTiles[FIELD_WIDTH - j - 1][i];
       }
     }
     gameTiles = gameTilesRotate;
@@ -128,20 +132,41 @@ public class Model {
   protected boolean canMove() {
     for (int i = 0; i < FIELD_WIDTH; i++)
       for (int j = 0; j < FIELD_WIDTH; j++)
-        if (gameTiles[i][j].isEmpty() || isNeighborTwin(i,j))
+        if (gameTiles[i][j].isEmpty() || isNeighborTwin(i, j))
           return true;
     return false;
   }
 
-  private boolean isNeighborTwin (int y, int x) {
+  private boolean isNeighborTwin(int y, int x) {
     int field = gameTiles[y][x].value;
-    int right = (x == FIELD_WIDTH-1)? -1: gameTiles[y][x+1].value;
-    int left = (x == 0)? -1: gameTiles[y][x-1].value;
-    int down = (y == FIELD_WIDTH-1)? -1: gameTiles[y+1][x].value;
-    int up = (y == 0)? -1: gameTiles[y-1][x].value;
+    int right = (x == FIELD_WIDTH - 1) ? -1 : gameTiles[y][x + 1].value;
+    int left = (x == 0) ? -1 : gameTiles[y][x - 1].value;
+    int down = (y == FIELD_WIDTH - 1) ? -1 : gameTiles[y + 1][x].value;
+    int up = (y == 0) ? -1 : gameTiles[y - 1][x].value;
     if (field == right || field == left || field == down || field == up)
       return true;
     return false;
+  }
+
+  private void saveState(Tile[][] tiles) {
+    Tile[][] previousTiles = new Tile[FIELD_WIDTH][FIELD_WIDTH];
+
+    for (int i = 0; i < FIELD_WIDTH; i++) {
+      for (int j = 0; j < FIELD_WIDTH; j++) {
+        previousTiles[i][j] = tiles[i][j];
+      }
+    }
+
+    previousStates.push(previousTiles);
+    previousScores.push(score);
+    isSaveNeeded = false;
+  }
+
+  public void rollback() {
+    if (!previousStates.empty() && !previousScores.empty()) {
+      gameTiles = previousStates.pop();
+      score = previousScores.pop();
+    }
   }
 
   public Tile[][] getGameTiles() {
