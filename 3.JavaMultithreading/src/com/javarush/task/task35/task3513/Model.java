@@ -125,6 +125,29 @@ public class Model {
     rotateClockwise();
   }
 
+  protected boolean canMove() {
+    for (int i = 0; i < FIELD_WIDTH; i++)
+      for (int j = 0; j < FIELD_WIDTH; j++)
+        if (gameTiles[i][j].isEmpty() || isNeighborTwin(i,j))
+          return true;
+    return false;
+  }
+
+  private boolean isNeighborTwin (int y, int x) {
+    int field = gameTiles[y][x].value;
+    int right = (x == FIELD_WIDTH-1)? -1: gameTiles[y][x+1].value;
+    int left = (x == 0)? -1: gameTiles[y][x-1].value;
+    int down = (y == FIELD_WIDTH-1)? -1: gameTiles[y+1][x].value;
+    int up = (y == 0)? -1: gameTiles[y-1][x].value;
+    if (field == right || field == left || field == down || field == up)
+      return true;
+    return false;
+  }
+
+  public Tile[][] getGameTiles() {
+    return gameTiles;
+  }
+
   @Override
   public String toString() {
     return "Model{" +
