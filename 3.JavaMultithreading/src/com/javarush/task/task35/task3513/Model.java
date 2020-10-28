@@ -96,6 +96,9 @@ public class Model {
   }
 
   protected void left() {
+    if (isSaveNeeded) {
+      saveState(gameTiles);
+    }
     boolean isAddTile = false;
     for (int i = 0; i < gameTiles.length; i++) {
       if (compressTiles(gameTiles[i]) | mergeTiles(gameTiles[i])) {
@@ -103,9 +106,11 @@ public class Model {
       }
     }
     if (isAddTile) addTile();
+    isSaveNeeded = true;
   }
 
   protected void down() {
+    saveState(gameTiles);
     rotateClockwise();
     left();
     rotateClockwise();
@@ -114,6 +119,7 @@ public class Model {
   }
 
   protected void up() {
+    saveState(gameTiles);
     rotateClockwise();
     rotateClockwise();
     rotateClockwise();
@@ -122,6 +128,7 @@ public class Model {
   }
 
   protected void right() {
+    saveState(gameTiles);
     rotateClockwise();
     rotateClockwise();
     left();
@@ -153,7 +160,7 @@ public class Model {
 
     for (int i = 0; i < FIELD_WIDTH; i++) {
       for (int j = 0; j < FIELD_WIDTH; j++) {
-        previousTiles[i][j] = tiles[i][j];
+        previousTiles[i][j] = new Tile(tiles[i][j].value);
       }
     }
 
