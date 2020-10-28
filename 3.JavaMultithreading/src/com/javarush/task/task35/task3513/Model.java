@@ -180,6 +180,17 @@ public class Model {
     return gameTiles;
   }
 
+  public void randomMove() {
+    int n = ((int) (Math.random() * 100)) % 4;
+    switch (n) {
+      case 1: right(); return;
+      case 2: up(); return;
+      case 3: down(); return;
+      case 0:
+      default: left(); return;
+    }
+  }
+
   @Override
   public String toString() {
     return "Model{" +
