@@ -176,10 +176,6 @@ public class Model {
     }
   }
 
-  public Tile[][] getGameTiles() {
-    return gameTiles;
-  }
-
   public void randomMove() {
     int n = ((int) (Math.random() * 100)) % 4;
     switch (n) {
@@ -189,6 +185,29 @@ public class Model {
       case 0:
       default: left(); return;
     }
+  }
+
+  public boolean hasBoardChanged() {
+    return getGameWeight(previousStates.peek()) != getGameWeight(gameTiles);
+  }
+
+  public MoveEfficiency getMoveEfficiency(Move move) {
+
+    move.move();
+    MoveEfficiency moveEfficiency = canMove()
+            ? new MoveEfficiency(getEmptyTiles().size(), score, move)
+            : new MoveEfficiency(-1, 0, move);
+    rollback();
+    return moveEfficiency;
+  }
+
+  public Tile[][] getGameTiles() {
+    return gameTiles;
+  }
+
+  private int getGameWeight(Tile[][] tiles) {
+    return flatten(tiles)
+            .mapToInt(t -> ((Tile) t).value).sum();
   }
 
   @Override
