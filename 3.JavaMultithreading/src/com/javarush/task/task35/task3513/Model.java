@@ -1,8 +1,6 @@
 package com.javarush.task.task35.task3513;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -208,6 +206,15 @@ public class Model {
   private int getGameWeight(Tile[][] tiles) {
     return flatten(tiles)
             .mapToInt(t -> ((Tile) t).value).sum();
+  }
+
+  public void autoMove() {
+    PriorityQueue priorityQueue = new PriorityQueue(FIELD_WIDTH, (Collections.reverseOrder()));
+    priorityQueue.add(getMoveEfficiency(this::left));
+    priorityQueue.add(getMoveEfficiency(this::right));
+    priorityQueue.add(getMoveEfficiency(this::up));
+    priorityQueue.add(getMoveEfficiency(this::down));
+    ((MoveEfficiency) priorityQueue.poll()).getMove().move();
   }
 
   @Override
