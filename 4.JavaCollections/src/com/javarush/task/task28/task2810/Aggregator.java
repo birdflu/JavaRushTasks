@@ -1,5 +1,6 @@
 package com.javarush.task.task28.task2810;
 
+import com.javarush.task.task28.task2810.model.HHStrategy;
 import com.javarush.task.task28.task2810.model.Provider;
 
 public class Aggregator {
@@ -7,6 +8,6 @@ public class Aggregator {
     Provider provider = new Provider(null);
     Controller controller = new Controller(provider);
     System.out.println(controller.toString());
-
+new HHStrategy().get();
   }
 }
