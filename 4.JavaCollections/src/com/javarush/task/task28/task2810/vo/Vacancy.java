@@ -55,4 +55,16 @@ public class Vacancy {
   public void setUrl(String url) {
     this.url = url;
   }
+
+  @Override
+  public String toString() {
+    return "Vacancy{" +
+            "title='" + title + '\'' +
+            ", salary='" + salary + '\'' +
+            ", city='" + city + '\'' +
+            ", companyName='" + companyName + '\'' +
+            ", siteName='" + siteName + '\'' +
+            ", url='" + url + '\'' +
+            '}';
+  }
 }
