@@ -1,7 +1,6 @@
 package com.javarush.task.task28.task2810.model;
 
 import com.javarush.task.task28.task2810.vo.Vacancy;
-import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -9,45 +8,56 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Класс будет реализовывать конкретную стратегию работы с сайтом http://hh.ua/ и http://hh.ru/.
  */
 public class HHStrategy implements Strategy {
-  private static final String URL_FORMAT = "http://hh.ua/search/vacancy?text=java+%s&page=%s";
+  private static final String URL_FORMAT = "http://hh.ua/search/vacancy?text=java+%s&page=%d";
 
 
   @Override
   public List<Vacancy> getVacancies(String searchString) {
+    try {
+      Document doc = Jsoup.connect("http://hh.ua/search/vacancy?text=java+%s&page=%d").get();
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+    return Collections.EMPTY_LIST;
+  }
+/*
+  public List<Vacancy> getVacancies(String searchString) {
     List<Vacancy> vacancies = new ArrayList<>();
 
-    int i = 0;
+    int page = 0;
     while (true) {
-      List<Vacancy> pageVacancies = getVacanciesFromPage(searchString, i);
+      Document doc = null;
+      try {
+        Connection connect = Jsoup.connect(String.format(URL_FORMAT, searchString, page));
+        connect.ignoreHttpErrors(true);
+        doc = connect.get();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      List<Vacancy> pageVacancies = getVacanciesFromPage(doc);
+
       if (pageVacancies.size() == 0) {
         break;
       } else {
         vacancies.addAll(pageVacancies);
-        i++;
+        page++;
       }
     }
     return vacancies;
   }
+*/
 
-  protected List<Vacancy> getVacanciesFromPage(String searchString, int page) {
+  protected List<Vacancy> getVacanciesFromPage(Document doc) {
     List<Vacancy> vacancies = new ArrayList<>();
-
-    String url = String.format(URL_FORMAT, searchString, page);
-
-    Document doc = null;
-    try {
-      Connection connect = Jsoup.connect(url);
-      connect.ignoreHttpErrors(true);
-      doc = connect.get();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
 
     Element e;
       e = doc.getElementsByTag("title").first();
