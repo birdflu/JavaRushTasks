@@ -21,7 +21,9 @@ public class HHStrategy implements Strategy {
   @Override
   public List<Vacancy> getVacancies(String searchString) {
     try {
-      Document doc = Jsoup.connect("http://hh.ua/search/vacancy?text=java+%s&page=%d").get();
+      Document doc = Jsoup.connect("http://hh.ua/search/vacancy?text=java+%s&page=%d")
+              .userAgent("Mozilla/5.0 (jsoup)")
+              .referrer("").get();
     }
     catch (IOException e) {
       e.printStackTrace();
@@ -38,7 +40,9 @@ public class HHStrategy implements Strategy {
       try {
         Connection connect = Jsoup.connect(String.format(URL_FORMAT, searchString, page));
         connect.ignoreHttpErrors(true);
-        doc = connect.get();
+        doc = connect
+              .userAgent(URL_FORMAT)
+              .referrer(URL_FORMAT).get();
       } catch (IOException e) {
         e.printStackTrace();
       }
