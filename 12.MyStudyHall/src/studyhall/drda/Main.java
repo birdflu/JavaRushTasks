@@ -17,19 +17,20 @@ public class Main {
     System.out.println(byteToHex((byte) 0));
 
     findFrame(drda);
-    System.out.println(bytesToHex(drda.read(40)));
-
 
     // LG bit: Globally unique address (factory default)
-//    System.out.println("drda.getBytes() = " + drda.getAll());
-//    byte[] factory = drda.get(0, 2);
+    byte[] factory = drda.read(3);
 
-    // LG bit: Globally unique address (factory default)
-//    byte[] unicast = drda.get(3, 5);
+    // IG bit: Individual address (unicast)
+    byte[] unicast = drda.read(3);
+
+    // Ethernet Type: IPv4 (0x0800) (08 00)
+    byte[] ethType = drda.read(2);
 
 
-//    System.out.println("factory = " + bytesToHex(factory));
-//    System.out.println("unicast = " + bytesToHex(unicast));
+    System.out.printf("factory = %s (%s)\n", bytesToHex(factory), Factories.valueOf("x"+bytesToHex(factory)).getName());
+    System.out.printf("unicast = %s\n", bytesToHex(unicast));
+    System.out.printf("ethType = %s\n", bytesToHex(ethType));
 
 
 //    example();
@@ -43,20 +44,17 @@ public class Main {
   private static void findFrame(DRDA drda) {
     List<Byte> frame = new ArrayList<>();
     int framePosition = -1;
-    System.out.println("Factories.PcsCompu = " + Factories.PcsCompu);
     for (int i = 0; i < 20; i++) {
       byte[] next = drda.read(3);
       if (bytesToHex(next).equals("000000")) {
         drda.seekFromCurrent(-4);
-        byte[] first = drda.read(4);
-        byte[] second = drda.read(4);
-        byte[] factory = drda.read(3);
-        System.out.println("bytesToHex(factory) = " + bytesToHex(factory));
+        byte[] first = drda.read(4);    // 5600 0000
+        byte[] second = drda.read(4);   // 5600 0000
+        byte[] factory = drda.read(3);  // 0800 27
         if (bytesToHex(first).equals(bytesToHex(second)) &&
                 !bytesToHex(first).equals("00000000") &&
-                bytesToHex(factory).equals(Factories.PcsCompu.getHex())) {
+                Factories.getValues().contains(bytesToHex(factory))) {
           drda.seekFromCurrent(-3);
-          System.out.println("found");
           return;
         } else drda.seekFromCurrent(-4);
       }

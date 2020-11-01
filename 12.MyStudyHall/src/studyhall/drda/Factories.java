@@ -5,18 +5,29 @@ package studyhall.drda;
  https://github.com/wireshark/wireshark/blob/97dcaf97fc19510548aff917b30e956bb5fd3204/manuf.tmpl
 */
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public enum Factories {
-  NorskDat   ("080026"), // NorskDat	Norsk Data (Nord)
-  PcsCompu   ("080027"), // PcsCompu	PCS Computer Systems GmbH
-  TiExplor   ("080028"); // TiExplor	TI	# Explorer
+  x080026   ("NorskDat"), // NorskDat	Norsk Data (Nord)
+  x080027   ("PcsCompu"), // PcsCompu	PCS Computer Systems GmbH
+  x080028   ("TiExplor"); // TiExplor	TI	# Explorer
 
-  private final String hex;
+  private final String name;
 
-  Factories(String hex) {
-    this.hex = hex;
+  Factories(String name) {
+    this.name = name;
   }
 
   public String getHex() {
-    return hex;
+    return this.name().substring(1);
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public static Set<String> getValues() {
+    return Set.of(Factories.values()).stream().map(v -> v.name().substring(1)).collect(Collectors.toSet());
   }
 }
