@@ -55,11 +55,6 @@ public class DRDA {
     return res;
   }
 
-  public boolean readFromCurrent(int count) {
-    pointer = pointer + count;
-    return notEndOfData();
-  }
-
   public boolean notEndOfData() {
     return 0 <= pointer && pointer < length;
   }

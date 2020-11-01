@@ -16,7 +16,8 @@ public class Main {
     System.out.println("d = " + d);
     System.out.println(byteToHex((byte) 0));
 
-    System.out.println(bytesToHex(getFrame(drda)));
+    findFrame(drda);
+    System.out.println(bytesToHex(drda.read(40)));
 
 
     // LG bit: Globally unique address (factory default)
@@ -35,21 +36,31 @@ public class Main {
 
   }
 
-  private static byte[] getFrame(DRDA drda) {
+
+//  701f 9c5f ea2e 0900 [5600 0000 5600 0000]
+//  [0800 277c 7e7f ...  <-- frame
+
+  private static void findFrame(DRDA drda) {
     List<Byte> frame = new ArrayList<>();
+    int framePosition = -1;
+    System.out.println("Factories.PcsCompu = " + Factories.PcsCompu);
     for (int i = 0; i < 20; i++) {
-      byte[] next = drda.read(1);
-      System.out.print(bytesToHex(next) + " ");
-      if (bytesToHex(next).equals("00")) {
-        byte[] next1 = drda.read(2);
-        if (bytesToHex(next1).equals("0000")) {
-          System.out.println("found2");
-          return drda.read(10);
-        }
-        else drda.seekFromCurrent(-2);
+      byte[] next = drda.read(3);
+      if (bytesToHex(next).equals("000000")) {
+        drda.seekFromCurrent(-4);
+        byte[] first = drda.read(4);
+        byte[] second = drda.read(4);
+        byte[] factory = drda.read(3);
+        System.out.println("bytesToHex(factory) = " + bytesToHex(factory));
+        if (bytesToHex(first).equals(bytesToHex(second)) &&
+                !bytesToHex(first).equals("00000000") &&
+                bytesToHex(factory).equals(Factories.PcsCompu.getHex())) {
+          drda.seekFromCurrent(-3);
+          System.out.println("found");
+          return;
+        } else drda.seekFromCurrent(-4);
       }
     }
-    return null;
   }
 
 /*
