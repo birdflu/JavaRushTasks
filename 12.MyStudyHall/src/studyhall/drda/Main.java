@@ -1,28 +1,55 @@
 package studyhall.drda;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Main {
   public static void main(String[] args) throws IOException {
     String inputFileName = "/home/birdflu/work/drda/db2/test_db2_small.pcap";
     DRDA drda = DRDA.getInstance(inputFileName);
 
-    byte[] bytes = Files.readAllBytes(Path.of(inputFileName));
+    int d = 0x00;
+    System.out.println("d = " + d);
+    System.out.println(byteToHex((byte) 0));
+
+    System.out.println(bytesToHex(getFrame(drda)));
+
 
     // LG bit: Globally unique address (factory default)
-    byte[] factory = Arrays.copyOfRange(bytes, 0, 2);
+//    System.out.println("drda.getBytes() = " + drda.getAll());
+//    byte[] factory = drda.get(0, 2);
 
     // LG bit: Globally unique address (factory default)
-    byte[] unicast = Arrays.copyOfRange(bytes, 3, 5);
+//    byte[] unicast = drda.get(3, 5);
 
+
+//    System.out.println("factory = " + bytesToHex(factory));
+//    System.out.println("unicast = " + bytesToHex(unicast));
 
 
 //    example();
 
+  }
+
+  private static byte[] getFrame(DRDA drda) {
+    List<Byte> frame = new ArrayList<>();
+    for (int i = 0; i < 20; i++) {
+      byte[] next = drda.read(1);
+      System.out.print(bytesToHex(next) + " ");
+      if (bytesToHex(next).equals("00")) {
+        byte[] next1 = drda.read(2);
+        if (bytesToHex(next1).equals("0000")) {
+          System.out.println("found2");
+          return drda.read(10);
+        }
+        else drda.seekFromCurrent(-2);
+      }
+    }
+    return null;
   }
 
 /*
@@ -97,8 +124,7 @@ public class Main {
 */
 
 
-
-protected static void example() throws IOException {
+  protected static void example() throws IOException {
     String inputFileName = "/home/birdflu/work/drda/db2/test_db2_small.pcap";
     byte[] fileContent = Files.readAllBytes(Path.of(inputFileName));
 
@@ -125,20 +151,17 @@ protected static void example() throws IOException {
     System.out.println(bytesToHex(Arrays.copyOfRange(fileContent, 0, 8)));
   }
 
-  public static String bytesToHex(byte[] bytes) {
-    BigInteger bigInteger = new BigInteger(1, bytes);
-    return bigInteger.toString(16);
-  }
-
-/*  public static String byteToHex(byte num) {
-    char[] hexDigits = new char[2];
-    hexDigits[0] = Character.forDigit((num >> 4) & 0xF, 16);
-    hexDigits[1] = Character.forDigit((num & 0xF), 16);
-    return new String(hexDigits);
-  }*/
 
   public static String byteToHex(byte num) {
     return Integer.toHexString((num >> 4) & 0xF) + Integer.toHexString(num & 0xF);
+  }
+
+  public static String bytesToHex(byte[] bytes) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < bytes.length; i++) {
+      sb.append(Integer.toHexString((bytes[i] >> 4) & 0xF) + Integer.toHexString(bytes[i] & 0xF));
+    }
+    return sb.toString();
   }
 
 }
