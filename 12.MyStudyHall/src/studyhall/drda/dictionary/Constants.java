@@ -1,4 +1,4 @@
-package studyhall.drda;
+package studyhall.drda.dictionary;
 
 /**
  * DRDA Code Points

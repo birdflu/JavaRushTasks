@@ -1,6 +1,12 @@
 package studyhall.drda;
 
+import studyhall.drda.dictionary.EthernetType;
+import studyhall.drda.dictionary.IPTypicalVersion;
+import studyhall.drda.dictionary.Manufacture;
+
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -18,8 +24,8 @@ public class Main {
 
     findFrame(drda);
 
-    // LG bit: Globally unique address (factory default)
-    byte[] factory = drda.read(3);
+    // LG bit: Globally unique address (manufacture default)
+    byte[] manufacture = drda.read(3);
 
     // IG bit: Individual address (unicast)
     byte[] unicast = drda.read(3);
@@ -27,13 +33,50 @@ public class Main {
     // Ethernet Type: IPv4 (0x0800) (08 00)
     byte[] ethType = drda.read(2);
 
+    drda.seekFromCurrent(6);
 
-    System.out.printf("factory = %s (%s)\n", bytesToHex(factory), Factories.valueOf("x"+bytesToHex(factory)).getName());
+    // Internet Protocol Version 4 (45)
+    byte[] IPVersion = drda.read(1);
+
+
+    print(manufacture, Manufacture.class);
     System.out.printf("unicast = %s\n", bytesToHex(unicast));
-    System.out.printf("ethType = %s\n", bytesToHex(ethType));
+    print(ethType, EthernetType.class);
+    print(IPVersion, IPTypicalVersion.class);
 
 
 //    example();
+
+  }
+
+  protected static <E extends Enum<E>> void print(byte[] enumValue, Class<E> clazz) {
+    Method methodValueOf = null;
+    Method methodGetName = null;
+
+    try {
+      methodValueOf = clazz.getMethod("valueOf", Class.class, String.class);
+      methodGetName = clazz.getMethod("getName");
+    } catch (NoSuchMethodException e) {
+      e.printStackTrace();
+    }
+
+    Object arglist[] = new Object[2];
+    arglist[0] = clazz;
+    arglist[1] = "x"+bytesToHex(enumValue);
+
+    try {
+      assert methodValueOf != null;
+      Object enumElement = methodValueOf.invoke(clazz, arglist);
+      assert methodGetName != null;
+      Object enumName = methodGetName.invoke(enumElement);
+
+      System.out.printf("%s = %s (%s)\n", clazz.getSimpleName(), bytesToHex(enumValue), enumName);
+
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    } catch (InvocationTargetException e) {
+      e.printStackTrace();
+    }
 
   }
 
@@ -53,7 +96,7 @@ public class Main {
         byte[] factory = drda.read(3);  // 0800 27
         if (bytesToHex(first).equals(bytesToHex(second)) &&
                 !bytesToHex(first).equals("00000000") &&
-                Factories.getValues().contains(bytesToHex(factory))) {
+                Manufacture.getValues().contains(bytesToHex(factory))) {
           drda.seekFromCurrent(-3);
           return;
         } else drda.seekFromCurrent(-4);

@@ -1,4 +1,4 @@
-package studyhall.drda;
+package studyhall.drda.dictionary;
 
 /*
  A part of wireshark's manufacture file
@@ -8,14 +8,14 @@ package studyhall.drda;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public enum Factories {
+public enum Manufacture {
   x080026   ("NorskDat"), // NorskDat	Norsk Data (Nord)
   x080027   ("PcsCompu"), // PcsCompu	PCS Computer Systems GmbH
   x080028   ("TiExplor"); // TiExplor	TI	# Explorer
 
   private final String name;
 
-  Factories(String name) {
+  Manufacture(String name) {
     this.name = name;
   }
 
@@ -28,6 +28,8 @@ public enum Factories {
   }
 
   public static Set<String> getValues() {
-    return Set.of(Factories.values()).stream().map(v -> v.name().substring(1)).collect(Collectors.toSet());
+    return Set.of(Manufacture.values()).stream()
+            .map(v -> v.name().substring(1))
+            .collect(Collectors.toSet());
   }
 }
