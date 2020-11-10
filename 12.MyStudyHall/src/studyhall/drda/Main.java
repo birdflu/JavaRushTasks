@@ -7,10 +7,7 @@ import studyhall.drda.dictionary.Manufacture;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -18,12 +15,12 @@ public class Main {
     String inputFileName = "/home/birdflu/work/drda/db2/test_db2_small.pcap";
     DRDA drda = DRDA.getInstance(inputFileName);
 
-    int d = 0x00;
-    System.out.println("d = " + d);
-    System.out.println(byteToHex((byte) 0));
-
     findFrame(drda);
 
+    // Frame begin
+    int frameHeaderPointer = drda.getPointer();
+
+    // head 14 bytes
     // LG bit: Globally unique address (manufacture default)
     byte[] manufacture = drda.read(3);
 
@@ -35,18 +32,165 @@ public class Main {
 
     drda.seekFromCurrent(6);
 
-    // Internet Protocol Version 4 (45)
-    byte[] IPVersion = drda.read(1);
+    // Internet Protocol
+    int ipHeaderPointer = drda.getPointer();
 
+    // Version 4 (45)
+    byte[] ipVersion = drda.read(1);
+
+    // Differentiated Services Field: 0x00
+    byte[] ipDiffServices = drda.read(1);
+
+    // Total Length
+    byte[] totalLengthBytes = drda.read(2);
+    int totalLength = Integer.valueOf(bytesToHex(totalLengthBytes), 16);
+
+    // Identification
+    byte[] identification = drda.read(2);
+
+    // ipFlags
+    byte[] ipFlags = drda.read(2);
+
+    // Time to Live
+    byte[] ipTimeToLive = drda.read(1);
+
+    // Protocol  : TCP  (6)  (06)
+    byte[] tcpProtocol = drda.read(1);
+
+    drda.seekFromCurrent(2);
+
+    // Source
+    byte[] source = drda.read(4);
+
+    // Destination
+    byte[] destination = drda.read(4);
+
+    // Protocol TCP begin
+    int tcpHeaderPointer = drda.getPointer();
+
+    // TCP Source Port
+    byte[] srcPort = drda.read(2);
+
+    // TCP Destination Port
+    byte[] destPort = drda.read(2);
+
+    // TCP Sequence number (raw)
+    byte[] tcpSeqRaw = drda.read(4);
+
+    // TCP Acknowledge number (raw)
+    byte[] tcpAckRaw = drda.read(4);
+
+    // TCP Data offset & Flags
+    byte[] tcpOffsetFlags = drda.read(2);
+
+    String tcpOffsetFlagsFirstByte = Integer.toBinaryString(Byte.toUnsignedInt(tcpOffsetFlags[0]));
+    String tcpOffsetFlagsSecondByte = addLeadZeros(Integer.toBinaryString(Byte.toUnsignedInt(tcpOffsetFlags[1])));
+    String tcpOffsetBinaryStr = tcpOffsetFlagsFirstByte + tcpOffsetFlagsSecondByte;
+
+    String tcpDataOffset = tcpOffsetBinaryStr.substring(0, 4);
+    String tcpFlags = tcpOffsetBinaryStr.substring(7, 16);
+
+    // TCP header length
+    // tcpDataOffset * 4 (bytes)
+    // tcpDataOffset * 32 (bits)
+    int tcpHeaderLength = Integer.valueOf(tcpDataOffset, 2) * 4;
+
+    // TCP Window size
+    byte[] tcpWindowSize = drda.read(2);
+
+    // TCP checksum
+    byte[] tcpChecksum = drda.read(2);
+
+    // TCP urgent pointer
+    byte[] tcpUrgentPointer = drda.read(2);
+
+    // go to TCP Payload
+    // Payload = [tcpHeaderPointer + tcpHeaderLength, ipHeaderPointer + totalLength]
+    drda.seek(tcpHeaderPointer + tcpHeaderLength);
+    byte[] tcpPayload = drda.read(ipHeaderPointer + totalLength -
+            tcpHeaderPointer - tcpHeaderLength);
 
     print(manufacture, Manufacture.class);
-    System.out.printf("unicast = %s\n", bytesToHex(unicast));
+
+    System.out.printf("Unicast = %s\n", bytesToHex(unicast));
+
     print(ethType, EthernetType.class);
-    print(IPVersion, IPTypicalVersion.class);
+
+    print(ipVersion, IPTypicalVersion.class);
+
+    System.out.printf("DiffServices = %s\n", bytesToHex(ipDiffServices));
+
+    System.out.printf("TotalLength = %s (%d)\n", bytesToHex(totalLengthBytes), totalLength);
+
+    System.out.printf("Identification = %s (%d)\n",
+            bytesToHex(identification),
+            Integer.parseInt(bytesToHex(identification), 16));
+
+    System.out.printf("IPFlags = %s\n", bytesToHex(ipFlags));
+
+    System.out.printf("IPTimeTolive = %s (%d)\n",
+            bytesToHex(ipTimeToLive),
+            Integer.parseInt(bytesToHex(ipTimeToLive), 16));
+
+    System.out.printf("ProtocolTCP = %s\n", bytesToHex(tcpProtocol));
+
+    System.out.printf("Source = %s (%s)\n", bytesToHex(source), getIP4(source));
+
+    System.out.printf("Destination = %s (%s)\n", bytesToHex(destination), getIP4(destination));
+
+    System.out.printf("SourcePort = %s (%s)\n",
+            bytesToHex(srcPort),
+            Integer.parseInt(bytesToHex(srcPort), 16));
+
+    System.out.printf("DestinationPort = %s (%d)\n",
+            bytesToHex(destPort),
+            Integer.parseInt(bytesToHex(destPort), 16));
+
+    System.out.printf("TCPSeq(raw) = %s (%d)\n",
+            bytesToHex(tcpSeqRaw),
+            Long.parseLong(bytesToHex(tcpSeqRaw), 16));
+
+    System.out.printf("TCPAck(raw) = %s (%d)\n",
+            bytesToHex(tcpAckRaw),
+            Long.parseLong(bytesToHex(tcpAckRaw), 16));
 
 
-//    example();
+    System.out.printf("TCPWindowSize = %s (%d)\n",
+            bytesToHex(tcpWindowSize),
+            Integer.parseInt(bytesToHex(tcpWindowSize), 16));
 
+    System.out.printf("TCPChecksum = %s\n", bytesToHex(tcpChecksum));
+
+    System.out.printf("TCPUrgentPointer = %s (%d)\n",
+            bytesToHex(tcpUrgentPointer),
+            Integer.parseInt(bytesToHex(tcpUrgentPointer), 16));
+
+    System.out.printf("TCPHeaderLength (bytes)= %d\n", tcpHeaderLength);
+
+    System.out.printf("TCPFlags = %s\n", tcpFlags);
+
+    System.out.println();
+    System.out.printf("FrameHeaderPointer = %d\n", frameHeaderPointer);
+    System.out.printf("IPHeaderPointer = %d\n", ipHeaderPointer);
+    System.out.printf("TCPHeaderPointer = %d\n", tcpHeaderPointer);
+    System.out.printf("TCPPayload = %s\n", bytesToHex(tcpPayload));
+
+  }
+
+  private static String addLeadZeros(String toBinaryString) {
+    return ("00000000" + toBinaryString)
+            .substring(toBinaryString.length(), toBinaryString.length() + 8);
+  }
+
+  protected static String getIP4(byte[] source) {
+    StringBuilder ip4 = new StringBuilder();
+
+    for (byte b : source) {
+      ip4.append(Byte.toUnsignedInt(b));
+      ip4.append('.');
+    }
+    ip4.deleteCharAt(ip4.length() - 1);
+    return ip4.toString();
   }
 
   protected static <E extends Enum<E>> void print(byte[] enumValue, Class<E> clazz) {
@@ -174,34 +318,6 @@ public class Main {
 
         00 0a d0 01 00 01 00 04 20 0f
 */
-
-
-  protected static void example() throws IOException {
-    String inputFileName = "/home/birdflu/work/drda/db2/test_db2_small.pcap";
-    byte[] fileContent = Files.readAllBytes(Path.of(inputFileName));
-
-    int d = 0xd4;
-    System.out.println("d = " + d);
-
-    byte bytee = fileContent[0];
-    int unsignedInt = Byte.toUnsignedInt(bytee);
-
-    String byteToHex = byteToHex(bytee);
-    String unsignedIntToHex = Integer.toHexString(unsignedInt);
-
-//    byte hexToByte = Byte.parseByte(byteToHex, 16);
-    int hexToInt = Integer.parseInt(unsignedIntToHex, 16);
-
-    System.out.println("bytee = " + bytee);
-    System.out.println("unsignedInt = " + unsignedInt);
-//    System.out.println("byteToHex = " + byteToHex);
-    System.out.println("unsignedIntToHex = " + unsignedIntToHex);
-//    System.out.println("hexToByte = " + hexToByte);
-    System.out.println("hexToInt = " + hexToInt);
-
-    System.out.println(Arrays.toString(Arrays.copyOfRange(fileContent, 0, 8)));
-    System.out.println(bytesToHex(Arrays.copyOfRange(fileContent, 0, 8)));
-  }
 
 
   public static String byteToHex(byte num) {

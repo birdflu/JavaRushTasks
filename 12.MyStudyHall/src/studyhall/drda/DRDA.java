@@ -55,6 +55,10 @@ public class DRDA {
     return res;
   }
 
+  public int getPointer() {
+    return pointer;
+  }
+
   public boolean notEndOfData() {
     return 0 <= pointer && pointer < length;
   }
