@@ -84,7 +84,7 @@ public class HHStrategy implements Strategy {
   }
 
 
-  protected List<Vacancy> getVacanciesFromPage(Document doc) {
+/*  protected List<Vacancy> getVacanciesFromPage(Document doc) {
     List<Vacancy> vacancies = new ArrayList<>();
 
     Element e;
@@ -110,8 +110,9 @@ public class HHStrategy implements Strategy {
     }
 
     return vacancies;
-  }
+  }*/
 
+/*
   protected String getElementValue(Element element, String attributeName) {
     Element e = element.getElementsByAttributeValue("data-qa", attributeName).first();
     return e != null ? e.text() : "";
@@ -150,9 +151,10 @@ public class HHStrategy implements Strategy {
     }
     return result;
   }
+*/
 
 
-  private static void print(String msg, Object... args) {
+/*  private static void print(String msg, Object... args) {
     System.out.println(String.format(msg, args));
   }
 
@@ -161,7 +163,7 @@ public class HHStrategy implements Strategy {
       return s.substring(0, width - 1) + ".";
     else
       return s;
-  }
+  }*/
 
 }
 

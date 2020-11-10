@@ -2,6 +2,9 @@ package com.javarush.task.task28.task2810.view;
 
 import com.javarush.task.task28.task2810.Controller;
 import com.javarush.task.task28.task2810.vo.Vacancy;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,8 +22,7 @@ public class HtmlView implements View {
     try {
       String updatedFileContent = getUpdatedFileContent(vacancies);
       updateFile(updatedFileContent);
-    }
-    catch (Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }
@@ -35,7 +37,50 @@ public class HtmlView implements View {
   }
 
   private String getUpdatedFileContent(List<Vacancy> vacancies) {
-    return null;
+    String content = "";
+    try {
+      Document document = getDocument();
+
+      Element element = document.getElementsByClass("template").first();
+      Element liteElement = element.clone();
+      liteElement.removeAttr("style");
+      liteElement.removeClass("template");
+
+/*
+      for (Element element : elements) {
+        System.out.println("element.toString() = " + element.toString());
+      }
+
+      for (Element element : liteElement) {
+        System.out.println("element.toString() = " + element.toString());
+      }
+*/
+
+        for (Element e:
+                document.getElementsByAttributeValue("class", "vacancy")) {
+          e.remove();
+        }
+
+        for (Vacancy v : vacancies) {
+          Element outerHtml = liteElement.clone();
+
+          outerHtml.getElementsByClass("city").first().text(v.getCity());
+          outerHtml.getElementsByClass("companyName").first().text(v.getCompanyName());
+          outerHtml.getElementsByClass("salary").first().text(v.getSalary());
+
+          Element eTmp = outerHtml.getElementsByTag("a").first();
+          eTmp.text(v.getTitle());
+          eTmp.attr("href", v.getUrl());
+
+          element.before(outerHtml);
+          content = document.toString();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+        content = "Some exception occurred";
+      }
+      return content;
+
   }
 
   private void updateFile(String s) {
@@ -48,8 +93,11 @@ public class HtmlView implements View {
     }
 
   }
-}
 
+  protected Document getDocument() throws IOException {
+    return Jsoup.parse(new File(filePath), "UTF-8");
+  }
+}
 /*
   Пора заняться отображением вакансий.
         1. В методе update класса HtmlView реализуй следующую логику:
