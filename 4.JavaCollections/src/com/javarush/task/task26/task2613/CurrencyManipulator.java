@@ -27,6 +27,10 @@ public class CurrencyManipulator {
     return currencyCode;
   }
 
+  public boolean hasMoney() {
+    return !denominations.isEmpty();
+  }
+
   @Override
   public String toString() {
     return "CurrencyManipulator{" +
