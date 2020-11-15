@@ -18,6 +18,11 @@ public class CurrencyManipulator {
     denominations.merge(denomination, count, Integer::sum);
   }
 
+  public int getTotalAmount() {
+    return denominations.entrySet().stream()
+            .mapToInt(e -> e.getKey()*e.getValue()).sum();
+  }
+
   public String getCurrencyCode() {
     return currencyCode;
   }
