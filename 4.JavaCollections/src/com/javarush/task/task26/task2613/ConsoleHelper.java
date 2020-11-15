@@ -1,5 +1,7 @@
 package com.javarush.task.task26.task2613;
 
+import com.javarush.task.task26.task2613.exception.InterruptOperationException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,15 +13,19 @@ public class ConsoleHelper {
     System.out.println(message);
   }
 
-  public static String readString() {
+  public static String readString() throws InterruptOperationException {
     while (true)
       try {
-        return bis.readLine();
-      } catch (IOException e) {
+        String line = bis.readLine();
+        if ("EXIT".equals(line.toUpperCase())) {
+          throw new InterruptOperationException();
+        }
+        return line;
+      }  catch (IOException e) {
       }
   }
 
-  public static String askCurrencyCode() {
+  public static String askCurrencyCode() throws InterruptOperationException {
 //    Этот метод должен предлагать пользователю ввести код валюты, проверять, что код содержит 3 символа.
 //    Если данные некорректны, то сообщить об этом пользователю и повторить.
 //    Если данные валидны, то перевести код в верхний регистр и вернуть.
@@ -34,7 +40,8 @@ public class ConsoleHelper {
     }
   }
 
-  public static Operation askOperation() {
+
+  public static Operation askOperation() throws InterruptOperationException {
 //  Спросить у пользователя операцию.
 //  Если пользователь вводит 1, то выбирается команда INFO, 2 - DEPOSIT, 3 - WITHDRAW, 4 - EXIT;
 //  Используйте метод, описанный в п.1.
@@ -58,7 +65,7 @@ public class ConsoleHelper {
     }
   }
 
-  public static String[] getValidTwoDigits(String currencyCode) {
+  public static String[] getValidTwoDigits(String currencyCode) throws InterruptOperationException {
 //    Этот метод должен предлагать пользователю ввести два целых положительных числа.
 //    Первое число - номинал, второе - количество банкнот.
 //    Никаких валидаторов на номинал нет. Т.е. 1200 - это нормальный номинал.
