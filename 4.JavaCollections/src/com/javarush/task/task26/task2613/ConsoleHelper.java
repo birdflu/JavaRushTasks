@@ -34,6 +34,30 @@ public class ConsoleHelper {
     }
   }
 
+  public static Operation askOperation() {
+//  Спросить у пользователя операцию.
+//  Если пользователь вводит 1, то выбирается команда INFO, 2 - DEPOSIT, 3 - WITHDRAW, 4 - EXIT;
+//  Используйте метод, описанный в п.1.
+//  Обработай исключение - запроси данные об операции повторно.
+    System.out.print("Input operation: ");
+    int operationCode;
+    while (true) {
+      String operation = readString();
+      try {
+        operationCode = Integer.parseInt(operation);
+        if (1 > operationCode || operationCode > 4) {
+          System.out.println("Wrong data!");
+          return askOperation();
+        } else {
+          return Operation.getAllowableOperationByOrdinal(operationCode);
+        }
+      } catch (NumberFormatException e) {
+        System.out.println("Wrong data!");
+        return askOperation();
+      }
+    }
+  }
+
   public static String[] getValidTwoDigits(String currencyCode) {
 //    Этот метод должен предлагать пользователю ввести два целых положительных числа.
 //    Первое число - номинал, второе - количество банкнот.
@@ -64,6 +88,7 @@ public class ConsoleHelper {
 
       return data;
     }
-
   }
+
+
 }
