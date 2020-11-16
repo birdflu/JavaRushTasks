@@ -7,6 +7,13 @@ import java.util.Map;
 public class CurrencyManipulatorFactory {
   private final static Map<String, CurrencyManipulator> map = new HashMap<>();
 
+//  static {
+//    map.put("RUB", new CurrencyManipulator("RUB"));
+//    map.get("RUB").addAmount(300, 2);
+//    map.get("RUB").addAmount(200, 3);
+//    map.get("RUB").addAmount(100, 1);
+//  }
+
   private CurrencyManipulatorFactory() {
   }
 
