@@ -108,7 +108,6 @@ public class CurrencyManipulator {
     List<Map.Entry<Integer, Integer>> res = new ArrayList<>();
 
     for (Integer nominal : sortedNominalValues) {
-//      System.out.println("try " + nominal + " - " + denominations.get(nominal).toString());
       noun = withdrawNominal(nominal, noun, res);
 
       if (noun == 0){
@@ -131,9 +130,7 @@ public class CurrencyManipulator {
       if (nominal <= noun && count > 0) {
         AbstractMap.SimpleEntry taked = new AbstractMap.SimpleEntry(nominal, 1);
         res.add(taked);
-//        System.out.println(taked + " taked");
         noun = noun - nominal;
-//        System.out.println("noun = " + noun);
         count--;
       } else {
         break;
