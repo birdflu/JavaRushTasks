@@ -33,7 +33,7 @@ public class ConsoleHelper {
     while (true) {
       String code = readString();
       if (code.length() != 3) {
-        System.out.println("Wrong code!");
+        System.out.println("Please specify valid data.");
         return askCurrencyCode();
       }
       return code.toUpperCase();
@@ -53,13 +53,13 @@ public class ConsoleHelper {
       try {
         operationCode = Integer.parseInt(operation);
         if (1 > operationCode || operationCode > 4) {
-          System.out.println("Wrong data!");
+          System.out.println("Please specify valid data.");
           return askOperation();
         } else {
           return Operation.getAllowableOperationByOrdinal(operationCode);
         }
       } catch (NumberFormatException e) {
-        System.out.println("Wrong data!");
+        System.out.println("Please specify valid data.");
         return askOperation();
       }
     }
@@ -78,7 +78,7 @@ public class ConsoleHelper {
       String[] data = readString().split(" ");
 
       if (data.length != 2) {
-        System.out.println("Wrong data!");
+        System.out.println("Please specify valid data.");
         return getValidTwoDigits(currencyCode);
       }
 
@@ -89,7 +89,7 @@ public class ConsoleHelper {
           throw new NumberFormatException();
         }
       } catch (NumberFormatException e) {
-        System.out.println("Wrong data!");
+        System.out.println("Please specify valid data.");
         return getValidTwoDigits(currencyCode);
       }
 

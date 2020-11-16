@@ -8,10 +8,6 @@ import java.util.ResourceBundle;
 
 public class LoginCommand implements Command {
 
-//  private ResourceBundle validCreditCards = ResourceBundle.getBundle(this.getClass()
-//          .getPackage().getName()
-//          .replace(".command", ".resources.verifiedCards"));
-
   // validator
   private ResourceBundle validCreditCards = ResourceBundle.getBundle(CashMachine.class
           .getPackage().getName() + ".resources.verifiedCards");
