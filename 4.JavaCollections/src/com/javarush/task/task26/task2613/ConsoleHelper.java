@@ -5,6 +5,7 @@ import com.javarush.task.task26.task2613.exception.InterruptOperationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ResourceBundle;
 
 public class ConsoleHelper {
   private static BufferedReader bis = new BufferedReader(new InputStreamReader(System.in));
@@ -12,6 +13,8 @@ public class ConsoleHelper {
   public static void writeMessage(String message) {
     System.out.println(message);
   }
+
+  private static ResourceBundle res = ResourceBundle.getBundle(CashMachine.RESOURCE_PATH + "common_en");
 
   public static String readString() throws InterruptOperationException {
     while (true)
@@ -26,10 +29,7 @@ public class ConsoleHelper {
   }
 
   public static String askCurrencyCode() throws InterruptOperationException {
-//    Этот метод должен предлагать пользователю ввести код валюты, проверять, что код содержит 3 символа.
-//    Если данные некорректны, то сообщить об этом пользователю и повторить.
-//    Если данные валидны, то перевести код в верхний регистр и вернуть.
-    System.out.print("Input currency: ");
+    writeMessage(res.getString("choose.currency.code"));
     while (true) {
       String code = readString();
       if (code.length() != 3) {
@@ -42,43 +42,50 @@ public class ConsoleHelper {
 
 
   public static Operation askOperation() throws InterruptOperationException {
-//  Спросить у пользователя операцию.
-//  Если пользователь вводит 1, то выбирается команда INFO, 2 - DEPOSIT, 3 - WITHDRAW, 4 - EXIT;
-//  Используйте метод, описанный в п.1.
-//  Обработай исключение - запроси данные об операции повторно.
-    System.out.print("Input operation: ");
+    writeMessage(res.getString("choose.operation"));
     int operationCode;
     while (true) {
       String operation = readString();
       try {
         operationCode = Integer.parseInt(operation);
         if (1 > operationCode || operationCode > 4) {
-          System.out.println("Please specify valid data.");
+          writeMessage(res.getString("invalid.data"));
           return askOperation();
         } else {
-          return Operation.getAllowableOperationByOrdinal(operationCode);
+          Operation o = Operation.getAllowableOperationByOrdinal(operationCode);
+          switch (o) {
+            case INFO: {
+              writeMessage(res.getString("operation.INFO"));
+              break;
+            }
+            case DEPOSIT: {
+              writeMessage(res.getString("operation.DEPOSIT"));
+              break;
+            }
+            case WITHDRAW: {
+              writeMessage(res.getString("operation.WITHDRAW"));
+              break;
+            }
+            case EXIT: {
+              writeMessage(res.getString("operation.EXIT"));
+            }
+          }
+          return o;
         }
       } catch (NumberFormatException e) {
-        System.out.println("Please specify valid data.");
+        writeMessage(res.getString("invalid.data"));
         return askOperation();
       }
     }
   }
 
   public static String[] getValidTwoDigits(String currencyCode) throws InterruptOperationException {
-//    Этот метод должен предлагать пользователю ввести два целых положительных числа.
-//    Первое число - номинал, второе - количество банкнот.
-//    Никаких валидаторов на номинал нет. Т.е. 1200 - это нормальный номинал.
-//    Если данные некорректны, то сообщить об этом пользователю и повторить.
-//
-//    Пример вводимых данных:
-//    200 5
-    System.out.print("Input nominal and banknote count: ");
+    writeMessage(res.getString("choose.denomination.and.count.format"));
     while (true) {
       String[] data = readString().split(" ");
 
       if (data.length != 2) {
-        System.out.println("Please specify valid data.");
+        writeMessage(res.getString("invalid.data"));
         return getValidTwoDigits(currencyCode);
       }
 
@@ -89,12 +96,16 @@ public class ConsoleHelper {
           throw new NumberFormatException();
         }
       } catch (NumberFormatException e) {
-        System.out.println("Please specify valid data.");
+        writeMessage(res.getString("invalid.data"));
         return getValidTwoDigits(currencyCode);
       }
 
       return data;
     }
+  }
+
+  public static void printExitMessage() {
+    writeMessage("Good bye.");
   }
 
 
