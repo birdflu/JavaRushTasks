@@ -1,9 +1,20 @@
 package com.javarush.task.task26.task2613.command;
 
+import com.javarush.task.task26.task2613.CashMachine;
 import com.javarush.task.task26.task2613.ConsoleHelper;
 import com.javarush.task.task26.task2613.exception.InterruptOperationException;
 
-public class LoginCommand implements Command{
+import java.util.ResourceBundle;
+
+public class LoginCommand implements Command {
+
+//  private ResourceBundle validCreditCards = ResourceBundle.getBundle(this.getClass()
+//          .getPackage().getName()
+//          .replace(".command", ".resources.verifiedCards"));
+
+  // validator
+  private ResourceBundle validCreditCards = ResourceBundle.getBundle(CashMachine.class
+          .getPackage().getName() + ".resources.verifiedCards");
 
   @Override
   public void execute() throws InterruptOperationException {
@@ -22,10 +33,7 @@ public class LoginCommand implements Command{
     ConsoleHelper.writeMessage("Input pin: ");
     Long pin = getValidValue(4);
 
-    long userCardNumber = 123456789012L;
-    long userPin = 1234L;
-
-    if (userCardNumber == cardNumber && userPin == pin) {
+    if (valid(cardNumber, pin)) {
       ConsoleHelper.writeMessage("Access passed.");
     } else {
       System.out.println("Access denied!");
@@ -33,19 +41,30 @@ public class LoginCommand implements Command{
     }
   }
 
+  protected boolean valid(Long cardNumber, Long pin) {
+    if (!validCreditCards.containsKey(String.valueOf(cardNumber))) {
+      return false;
+    } else try {
+      validCreditCards.getString(String.valueOf(cardNumber)).equals(String.valueOf(pin));
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
   protected Long getValidValue(int size) throws InterruptOperationException {
-      String string = ConsoleHelper.readString();
-      try {
-        if (string.length() != size) {
-          ConsoleHelper.writeMessage("Wrong data!");
-          return getValidValue(size);
-        }
-        return Long.parseLong(string);
-      } catch (NumberFormatException e) {
+    String string = ConsoleHelper.readString();
+    try {
+      if (string.length() != size) {
         ConsoleHelper.writeMessage("Wrong data!");
         return getValidValue(size);
       }
+      return Long.parseLong(string);
+    } catch (NumberFormatException e) {
+      ConsoleHelper.writeMessage("Wrong data!");
+      return getValidValue(size);
     }
+  }
 
 
 }
