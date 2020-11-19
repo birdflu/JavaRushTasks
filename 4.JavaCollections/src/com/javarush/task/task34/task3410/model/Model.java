@@ -11,10 +11,6 @@ public class Model {
   private int currentLevel = 1;
   private LevelLoader levelLoader = new LevelLoader(Paths.get(this.getClass().getPackage().getName().replace(".model", ".res.levels.txt")));
 
-//  static {
-//    System.out.println(Model.class.getPackage().getName().replace(".model", ".res.levels.txt"));
-//  }
-
   public void setEventListener(EventListener eventListener) {
     this.eventListener = eventListener;
   }
