@@ -11,7 +11,10 @@ public class Model {
   private EventListener eventListener;
   private GameObjects gameObjects;
   private int currentLevel = 1;
-  private LevelLoader levelLoader = new LevelLoader(Paths.get(this.getClass().getPackage().getName().replace(".model", ".res.levels.txt")));
+
+  private LevelLoader levelLoader = new LevelLoader(Paths.get("4.JavaCollections/src/" +
+          this.getClass().getPackage().getName().replace(".model", ".res").replace(".","/")
+                  + "/levels.txt"));
 
   public void setEventListener(EventListener eventListener) {
     this.eventListener = eventListener;
