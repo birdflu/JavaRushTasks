@@ -11,6 +11,7 @@ public class SetCookiesServlet extends HttpServlet {
   }
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // localhost:8888/webapp/set-cookies
     Cookie cookie1 = new Cookie("some_id", "123");
     Cookie cookie2 = new Cookie("some_name", "Tom");
 

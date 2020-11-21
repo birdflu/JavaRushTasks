@@ -11,6 +11,7 @@ public class DeleteCookiesServlet extends HttpServlet {
   }
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // localhost:8888/webapp/delete-cookies
     Cookie cookie = new Cookie("some_id", "");
     cookie.setMaxAge(0);
     response.addCookie(cookie);

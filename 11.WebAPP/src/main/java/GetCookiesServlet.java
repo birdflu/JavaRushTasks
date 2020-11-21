@@ -12,6 +12,7 @@ public class GetCookiesServlet extends HttpServlet {
   }
 
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    // localhost:8888/webapp/get-cookies
     Cookie[] cookies = request.getCookies();
 
     PrintWriter pw = response.getWriter();
