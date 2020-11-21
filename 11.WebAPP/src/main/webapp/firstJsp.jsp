@@ -13,9 +13,18 @@
 <body>
 <h1>Testing JSP</h1>
 <p>
-<%=
-   "Hello world"
-%>
+    <%@ page import="java.util.Date, logic.TestClass" %>
+    <%
+        java.util.Date now = new Date();
+        String currentDate = "Current date : " + now;
+        for (int i = 0; i < 10 ; i++) {
+            out.println("<p>" + i + "</p>");
+        }
+
+        TestClass testClass = new TestClass();
+    %>
+    <%= "<p>" + currentDate + "</p> "%>
+    <%= "<p>" + testClass.getInfo() + "</p> " %>
 </p>
 </body>
 </html>
