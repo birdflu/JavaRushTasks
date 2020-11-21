@@ -11,9 +11,12 @@ import java.io.PrintWriter;
 public class SecondServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    // http://localhost:8888/webapp/hello-world?name=Tom&surname=Smith
+    String name = req.getParameter("name");
+    String surname = req.getParameter("surname");
     PrintWriter pw = resp.getWriter();
     pw.println("<html>");
-    pw.println("<h1> Hello second class! </h1>");
+    pw.println("<h1> Hello, " + name + " " + surname + "! </h1>");
     pw.println("</html>");
   }
 
