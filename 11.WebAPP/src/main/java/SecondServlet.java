@@ -1,3 +1,4 @@
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +19,16 @@ public class SecondServlet extends HttpServlet {
     pw.println("<html>");
     pw.println("<h1> Hello, " + name + " " + surname + "! </h1>");
     pw.println("</html>");
+
+    boolean isRedirect = false;
+    if (isRedirect) {
+      resp.sendRedirect("https://www.sql.ru");
+//    resp.sendRedirect("/webapp/redirect-jsp");
+    } else {
+      RequestDispatcher dispatcher = req.getRequestDispatcher("/redirect-jsp");
+      dispatcher.forward(req, resp);
+    }
+
   }
 
   @Override

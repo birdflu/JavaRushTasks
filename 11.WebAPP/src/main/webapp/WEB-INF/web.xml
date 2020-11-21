@@ -10,6 +10,7 @@
     <servlet-mapping>
         <servlet-name>SecondServlet</servlet-name>
         <url-pattern>/hello-world</url-pattern>
+
     </servlet-mapping>
     <servlet>
         <servlet-name>FirstJsp</servlet-name>
@@ -18,5 +19,14 @@
     <servlet-mapping>
         <servlet-name>FirstJsp</servlet-name>
         <url-pattern>/hello-world-jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ForRedirect</servlet-name>
+        <jsp-file>/forRedirect.jsp</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ForRedirect</servlet-name>
+        <url-pattern>/redirect-jsp</url-pattern>
     </servlet-mapping>
 </web-app>
